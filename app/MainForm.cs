@@ -1,4 +1,4 @@
-namespace app;
+namespace App;
 
 public partial class MainForm : Form
 {

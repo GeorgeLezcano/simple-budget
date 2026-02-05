@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace app;
+namespace App;
 
 /// <summary>
 /// Application program class.

@@ -1,4 +1,6 @@
-﻿namespace app;
+﻿using App.Utils;
+
+namespace App;
 
 partial class MainForm
 {
@@ -28,10 +30,20 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
-        this.components = new System.ComponentModel.Container();
-        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(800, 450);
-        this.Text = "Simple Budget";
+        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+        SuspendLayout();
+        // 
+        // MainForm
+        // 
+        AutoScaleDimensions = DefaultAutoScaleDimensions;
+        AutoScaleMode = AutoScaleMode.Font;
+        ClientSize = new Size(shellWidth, shellHeight);
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        Icon = (Icon)resources.GetObject(iconName);
+        MaximizeBox = false;
+        Name = shellName;
+        StartPosition = FormStartPosition.CenterScreen;
+        Text = LabelFormatter.SetAppShellText(shellText);
     }
 
     #endregion
