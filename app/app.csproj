@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>app</RootNamespace>
+    <Version>1.0.0</Version>
+    <!-- <AssemblyName>$([System.String]::Concat('SimpleBudget_v', '$(Version)'))</AssemblyName> -->
+     <AssemblyName>SimpleBudget</AssemblyName>
+    <ApplicationIcon>Resources/app_default.ico</ApplicationIcon>
+  </PropertyGroup>
+
+</Project>

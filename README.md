@@ -1,0 +1,1 @@
+Simple Windows application to track and calculate your income/expenses.
