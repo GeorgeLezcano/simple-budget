@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -9,40 +9,22 @@ namespace App;
 
 partial class MainForm
 {
+    #region Designer Fields
+
     private IContainer components = null;
-
-    // Theme (tuned dark theme - less "all black")
-    private static readonly Color ThemeBack = Color.FromArgb(32, 32, 32);
-    private static readonly Color ThemePanel = Color.FromArgb(45, 45, 48);
-    private static readonly Color ThemeInput = Color.FromArgb(55, 55, 58);
-    private static readonly Color ThemeText = Color.Gainsboro;
-    private static readonly Color ThemeMuted = Color.FromArgb(170, 170, 170);
-    private static readonly Color ThemeBorder = Color.FromArgb(80, 80, 80);
-
-    // Accents
-    private static readonly Color ThemeAccent = Color.FromArgb(33, 140, 79);      // green buttons
-    private static readonly Color ThemeAccentHover = Color.FromArgb(40, 160, 92);
-    private static readonly Color ThemeAccentDown = Color.FromArgb(28, 120, 68);
-    private static readonly Color ThemeTabActive = Color.FromArgb(0, 122, 204);   // blue selected tab header
-    private static readonly Color ThemeTabInactive = Color.FromArgb(55, 55, 58);
 
     // App chrome
     private MenuStrip menuMain;
-    private ToolStripMenuItem menuFile;
-    private ToolStripMenuItem menuFileExit;
-    private ToolStripMenuItem menuView;
-    private ToolStripMenuItem menuViewRefresh;
     private ToolStripMenuItem menuHelp;
+    private ToolStripMenuItem menuLanguage;
+    private ToolStripMenuItem menuLanguageEnglish;
+    private ToolStripMenuItem menuLanguageSpanish;
     private ToolStripMenuItem menuHelpDocs;
     private ToolStripMenuItem menuHelpAbout;
 
-    private StatusStrip statusStrip;
-    private ToolStripStatusLabel statusSpacer;
-    private ToolStripStatusLabel statusVersion;
-
     private ToolTip toolTip;
 
-    // Tabs (WinForms)
+    // Tabs
     private TabControl tabMain;
     private TabPage tabDashboard;
     private TabPage tabIncome;
@@ -68,6 +50,11 @@ partial class MainForm
     private Label lblNetTotalValue;
     private Label lblSavingsTotalTitle;
     private Label lblSavingsTotalValue;
+
+    private Label lblDashDailyLeftTitle;
+    private Label lblDashDailyLeftValue;
+    private Label lblDashProjectedSavingsTitle;
+    private Label lblDashProjectedSavingsValue;
 
     private Label lblDashRange;
     private ComboBox cbDashRange;
@@ -99,6 +86,10 @@ partial class MainForm
     private GroupBox gbIncomeList;
     private DataGridView dgvIncome;
 
+    private Panel pnlIncomeListActions;
+    private FlowLayoutPanel flpIncomeListActions;
+    private Button btnIncomeDeleteSelected;
+
     // Expenses
     private SplitContainer scExpenses;
     private GroupBox gbExpenseEntry;
@@ -126,6 +117,10 @@ partial class MainForm
 
     private GroupBox gbExpenseList;
     private DataGridView dgvExpenses;
+
+    private Panel pnlExpenseListActions;
+    private FlowLayoutPanel flpExpenseListActions;
+    private Button btnExpenseDeleteSelected;
 
     // Reports
     private SplitContainer scReports;
@@ -159,7 +154,7 @@ partial class MainForm
     private GroupBox gbReportResults;
     private DataGridView dgvReportResults;
 
-    // Settings (redesigned)
+    // Settings
     private Panel pnlSettingsHeader;
     private Label lblSettingsTitle;
     private Label lblSettingsHint;
@@ -182,11 +177,21 @@ partial class MainForm
     private Button btnAddExpenseType;
     private Button btnRemoveExpenseType;
 
+    private GroupBox gbSavingsSettings;
+    private TableLayoutPanel tlpSavingsSettings;
+    private Label lblSavingsPercent;
+    private NumericUpDown nudSavingsPercent;
+
     private Panel pnlSettingsActions;
     private FlowLayoutPanel flpSettingsActions;
     private Button btnSettingsSave;
     private Button btnSettingsResetDefaults;
 
+    #endregion
+
+    #region Dispose
+
+    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (disposing && (components != null))
@@ -194,24 +199,32 @@ partial class MainForm
         base.Dispose(disposing);
     }
 
+    #endregion
+
+    #region InitializeComponent
+
+    /// <summary>
+    /// Component Initialization.
+    /// </summary>
     private void InitializeComponent()
     {
+        #region Setup / Resources
+
         ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
         components = new Container();
         toolTip = new ToolTip(components);
 
+        #endregion
+
+        #region Instantiate Controls
+
         menuMain = new MenuStrip();
-        menuFile = new ToolStripMenuItem();
-        menuFileExit = new ToolStripMenuItem();
-        menuView = new ToolStripMenuItem();
-        menuViewRefresh = new ToolStripMenuItem();
         menuHelp = new ToolStripMenuItem();
+        menuLanguage = new ToolStripMenuItem();
+        menuLanguageEnglish = new ToolStripMenuItem();
+        menuLanguageSpanish = new ToolStripMenuItem();
         menuHelpDocs = new ToolStripMenuItem();
         menuHelpAbout = new ToolStripMenuItem();
-
-        statusStrip = new StatusStrip();
-        statusSpacer = new ToolStripStatusLabel();
-        statusVersion = new ToolStripStatusLabel();
 
         tabMain = new TabControl();
         tabDashboard = new TabPage();
@@ -238,6 +251,12 @@ partial class MainForm
         lblNetTotalValue = new Label();
         lblSavingsTotalTitle = new Label();
         lblSavingsTotalValue = new Label();
+
+        lblDashDailyLeftTitle = new Label();
+        lblDashDailyLeftValue = new Label();
+        lblDashProjectedSavingsTitle = new Label();
+        lblDashProjectedSavingsValue = new Label();
+
         lblDashRange = new Label();
         cbDashRange = new ComboBox();
 
@@ -268,6 +287,10 @@ partial class MainForm
         gbIncomeList = new GroupBox();
         dgvIncome = new DataGridView();
 
+        pnlIncomeListActions = new Panel();
+        flpIncomeListActions = new FlowLayoutPanel();
+        btnIncomeDeleteSelected = new Button();
+
         // Expenses
         scExpenses = new SplitContainer();
         gbExpenseEntry = new GroupBox();
@@ -295,6 +318,10 @@ partial class MainForm
 
         gbExpenseList = new GroupBox();
         dgvExpenses = new DataGridView();
+
+        pnlExpenseListActions = new Panel();
+        flpExpenseListActions = new FlowLayoutPanel();
+        btnExpenseDeleteSelected = new Button();
 
         // Reports
         scReports = new SplitContainer();
@@ -350,40 +377,49 @@ partial class MainForm
         btnAddExpenseType = new Button();
         btnRemoveExpenseType = new Button();
 
+        gbSavingsSettings = new GroupBox();
+        tlpSavingsSettings = new TableLayoutPanel();
+        lblSavingsPercent = new Label();
+        nudSavingsPercent = new NumericUpDown();
+
         pnlSettingsActions = new Panel();
         flpSettingsActions = new FlowLayoutPanel();
         btnSettingsSave = new Button();
         btnSettingsResetDefaults = new Button();
 
+        #endregion
+
+        #region SuspendLayout
+
         SuspendLayout();
 
-        // ======================
-        // MainForm
-        // ======================
-        AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1200, 800);
-        MinimumSize = new Size(1100, 720);
-        StartPosition = FormStartPosition.CenterScreen;
-        Text = "Simple Budget";
-        Icon = (Icon)resources.GetObject("$this.Icon");
-        BackColor = ThemeBack;
-        ForeColor = ThemeText;
+        #endregion
 
-        // ======================
-        // MenuStrip
-        // ======================
+        #region MainForm
+
+        AutoScaleMode = AutoScaleMode.Font;
+        ClientSize = new Size(AppConfig.ShellWidth, AppConfig.ShellHeight);
+        MinimumSize = new Size(1100, 720); //TODO Move to AppConfig
+        StartPosition = FormStartPosition.CenterScreen;
+        Text = LabelFormatter.AppShellText();
+        Icon = (Icon)resources.GetObject(AppConfig.IconName);
+        BackColor = AppConfig.ThemeBack;
+        ForeColor = AppConfig.ThemeText;
+
+        #endregion
+
+        #region MenuStrip
+
         menuMain.Dock = DockStyle.Top;
         menuMain.RenderMode = ToolStripRenderMode.System;
 
-        menuFile.Text = "&File";
-        menuFileExit.Text = "E&xit";
-        menuFileExit.Click += FileExitClicked;
-        menuFile.DropDownItems.Add(menuFileExit);
-
-        menuView.Text = "&View";
-        menuViewRefresh.Text = "&Refresh";
-        menuViewRefresh.Click += ViewRefreshClicked;
-        menuView.DropDownItems.Add(menuViewRefresh);
+        menuLanguage.Text = "&Language";
+        menuLanguageEnglish.Text = "&English";
+        menuLanguageEnglish.Click += LanguageEnglishClicked;
+        menuLanguageSpanish.Text = "&Español";
+        menuLanguageSpanish.Click += LanguageSpanishClicked;
+        menuLanguage.DropDownItems.Add(menuLanguageEnglish);
+        menuLanguage.DropDownItems.Add(menuLanguageSpanish);
 
         menuHelp.Text = "&Help";
         menuHelpDocs.Text = "&Documentation";
@@ -394,27 +430,20 @@ partial class MainForm
         menuHelp.DropDownItems.Add(new ToolStripSeparator());
         menuHelp.DropDownItems.Add(menuHelpAbout);
 
-        menuMain.Items.AddRange(new ToolStripItem[] { menuFile, menuView, menuHelp });
+        menuMain.Items.AddRange(new ToolStripItem[] { menuHelp, menuLanguage });
         MainMenuStrip = menuMain;
 
-        // ======================
-        // StatusStrip
-        // ======================
-        statusStrip.Dock = DockStyle.Bottom;
-        statusStrip.SizingGrip = false;
+        #endregion
 
-        statusSpacer.Spring = true;
-        statusVersion.Text = LabelFormatter.AppShellText(AppConfig.ShellText);
-        statusStrip.Items.AddRange(new ToolStripItem[] { statusSpacer, statusVersion });
+        #region Tabs
 
-        // ======================
-        // Tabs
-        // ======================
         tabMain.Dock = DockStyle.Fill;
         tabMain.DrawMode = TabDrawMode.OwnerDrawFixed;
         tabMain.SizeMode = TabSizeMode.Fixed;
-        tabMain.ItemSize = new Size(140, 32);
-        tabMain.Padding = new Point(16, 4);
+
+        tabMain.ItemSize = new Size(150, 34);
+        tabMain.Padding = new Point(14, 4);
+
         tabMain.DrawItem += TabMain_DrawItem;
 
         tabMain.Controls.Add(tabDashboard);
@@ -423,24 +452,26 @@ partial class MainForm
         tabMain.Controls.Add(tabReports);
         tabMain.Controls.Add(tabSettings);
 
-        // ======================
-        // Dashboard Tab
-        // ======================
+        #endregion
+
+        #region Dashboard Tab
+
         tabDashboard.Text = "Dashboard";
-        tabDashboard.BackColor = ThemeBack;
-        tabDashboard.ForeColor = ThemeText;
+        tabDashboard.BackColor = AppConfig.ThemeBack;
+        tabDashboard.ForeColor = AppConfig.ThemeText;
         tabDashboard.Padding = new Padding(12);
         tabDashboard.UseVisualStyleBackColor = false;
 
         tlpDashboard.Dock = DockStyle.Fill;
         tlpDashboard.RowCount = 3;
         tlpDashboard.ColumnCount = 1;
+
         tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
-        tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Absolute, 220));
         tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Absolute, 150));
 
         pnlDashHeader.Dock = DockStyle.Fill;
-        pnlDashHeader.BackColor = ThemePanel;
+        pnlDashHeader.BackColor = AppConfig.ThemePanel;
 
         lblDashTitle.AutoSize = true;
         lblDashTitle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
@@ -448,7 +479,7 @@ partial class MainForm
         lblDashTitle.Location = new Point(16, 12);
 
         lblDashSubtitle.AutoSize = true;
-        lblDashSubtitle.ForeColor = ThemeMuted;
+        lblDashSubtitle.ForeColor = AppConfig.ThemeMuted;
         lblDashSubtitle.Text = "Track income and expenses. View summaries by week, month, or year.";
         lblDashSubtitle.Location = new Point(18, 50);
 
@@ -461,6 +492,7 @@ partial class MainForm
         cbDashRange.SelectedIndex = 1;
         cbDashRange.Width = 110;
         cbDashRange.Location = new Point(640, 14);
+        StyleComboBox(cbDashRange);
 
         toolTip.SetToolTip(cbDashRange,
             "View scope:\n" +
@@ -478,6 +510,7 @@ partial class MainForm
         dtpDashMonth.Width = 160;
         dtpDashMonth.Location = new Point(870, 14);
         dtpDashMonth.ValueChanged += SummaryMonthChanged;
+        StyleDateTimePicker(dtpDashMonth);
         toolTip.SetToolTip(dtpDashMonth, "Pick a date to anchor Week/Month/Year views.");
 
         pnlDashHeader.Controls.Add(lblDashTitle);
@@ -489,19 +522,20 @@ partial class MainForm
 
         gbDashTotals.Dock = DockStyle.Fill;
         gbDashTotals.Text = "Summary";
-        gbDashTotals.BackColor = ThemePanel;
-        gbDashTotals.ForeColor = ThemeText;
+        StyleGroupBox(gbDashTotals);
 
         tlpDashTotals.Dock = DockStyle.Fill;
         tlpDashTotals.Padding = new Padding(12);
         tlpDashTotals.ColumnCount = 2;
         tlpDashTotals.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
         tlpDashTotals.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
-        tlpDashTotals.RowCount = 4;
-        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
+        tlpDashTotals.RowCount = 6;
+        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
 
         lblIncomeTotalTitle.AutoSize = true;
         lblIncomeTotalTitle.Text = "Total Income";
@@ -527,6 +561,22 @@ partial class MainForm
         lblNetTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         lblNetTotalValue.Text = "$0.00";
 
+        lblDashDailyLeftTitle.AutoSize = true;
+        lblDashDailyLeftTitle.Text = "Remaining daily (est.)";
+        lblDashDailyLeftTitle.ForeColor = AppConfig.ThemeMuted;
+
+        lblDashDailyLeftValue.AutoSize = true;
+        lblDashDailyLeftValue.Text = "$0.00";
+        lblDashDailyLeftValue.ForeColor = AppConfig.ThemeMuted;
+
+        lblDashProjectedSavingsTitle.AutoSize = true;
+        lblDashProjectedSavingsTitle.Text = "Projected savings (est.)";
+        lblDashProjectedSavingsTitle.ForeColor = AppConfig.ThemeMuted;
+
+        lblDashProjectedSavingsValue.AutoSize = true;
+        lblDashProjectedSavingsValue.Text = "$0.00";
+        lblDashProjectedSavingsValue.ForeColor = AppConfig.ThemeMuted;
+
         tlpDashTotals.Controls.Add(lblIncomeTotalTitle, 0, 0);
         tlpDashTotals.Controls.Add(lblIncomeTotalValue, 1, 0);
         tlpDashTotals.Controls.Add(lblExpenseTotalTitle, 0, 1);
@@ -536,15 +586,19 @@ partial class MainForm
         tlpDashTotals.Controls.Add(lblNetTotalTitle, 0, 3);
         tlpDashTotals.Controls.Add(lblNetTotalValue, 1, 3);
 
+        tlpDashTotals.Controls.Add(lblDashDailyLeftTitle, 0, 4);
+        tlpDashTotals.Controls.Add(lblDashDailyLeftValue, 1, 4);
+        tlpDashTotals.Controls.Add(lblDashProjectedSavingsTitle, 0, 5);
+        tlpDashTotals.Controls.Add(lblDashProjectedSavingsValue, 1, 5);
+
         gbDashTotals.Controls.Add(tlpDashTotals);
 
         gbDashNextSteps.Dock = DockStyle.Fill;
         gbDashNextSteps.Text = "Next steps";
-        gbDashNextSteps.BackColor = ThemePanel;
-        gbDashNextSteps.ForeColor = ThemeText;
+        StyleGroupBox(gbDashNextSteps);
 
         lblDashHint.Dock = DockStyle.Fill;
-        lblDashHint.ForeColor = ThemeMuted;
+        lblDashHint.ForeColor = AppConfig.ThemeMuted;
         lblDashHint.Text =
             "• Use Income to add money coming in.\n" +
             "• Use Expenses to log spending (recurring or one-time).\n" +
@@ -560,23 +614,25 @@ partial class MainForm
 
         tabDashboard.Controls.Add(tlpDashboard);
 
-        // ======================
-        // Income Tab
-        // ======================
+        #endregion
+
+        #region Income Tab
+
         tabIncome.Text = "Income";
-        tabIncome.BackColor = ThemeBack;
-        tabIncome.ForeColor = ThemeText;
+        tabIncome.BackColor = AppConfig.ThemeBack;
+        tabIncome.ForeColor = AppConfig.ThemeText;
         tabIncome.Padding = new Padding(12);
         tabIncome.UseVisualStyleBackColor = false;
 
         scIncome.Dock = DockStyle.Fill;
         scIncome.Orientation = Orientation.Horizontal;
-        scIncome.SplitterDistance = 210; // ✅ more space for grid
+
+        scIncome.IsSplitterFixed = false;
+        scIncome.SplitterWidth = 6;
 
         gbIncomeEntry.Dock = DockStyle.Fill;
         gbIncomeEntry.Text = "Add Income";
-        gbIncomeEntry.BackColor = ThemePanel;
-        gbIncomeEntry.ForeColor = ThemeText;
+        StyleGroupBox(gbIncomeEntry);
 
         tlpIncomeEntry.Dock = DockStyle.Fill;
         tlpIncomeEntry.Padding = new Padding(12);
@@ -584,11 +640,11 @@ partial class MainForm
         tlpIncomeEntry.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
         tlpIncomeEntry.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         tlpIncomeEntry.RowCount = 5;
-        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // category
-        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // amount
-        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // date
-        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 90)); // ✅ notes smaller
-        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 46)); // buttons
+        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
 
         lblIncomeCategory.Text = "Category:";
         lblIncomeCategory.TextAlign = ContentAlignment.MiddleLeft;
@@ -596,7 +652,8 @@ partial class MainForm
 
         cbIncomeCategory.Dock = DockStyle.Fill;
         cbIncomeCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbIncomeCategory.Items.AddRange(new object[] { "Salary", "Bonus", "Other" });
+        cbIncomeCategory.Items.AddRange(new object[] { "Salary", "Bonus", "Other" }); //TODO Move to AppConfig
+        StyleComboBox(cbIncomeCategory);
 
         lblIncomeAmount.Text = "Amount:";
         lblIncomeAmount.TextAlign = ContentAlignment.MiddleLeft;
@@ -605,12 +662,14 @@ partial class MainForm
         nudIncomeAmount.Dock = DockStyle.Fill;
         nudIncomeAmount.DecimalPlaces = 2;
         nudIncomeAmount.Maximum = 100000000;
+        StyleNumeric(nudIncomeAmount);
 
         lblIncomeDate.Text = "Date:";
         lblIncomeDate.TextAlign = ContentAlignment.MiddleLeft;
         lblIncomeDate.Dock = DockStyle.Fill;
 
         dtpIncomeDate.Dock = DockStyle.Fill;
+        StyleDateTimePicker(dtpIncomeDate);
 
         lblIncomeNotes.Text = "Notes:";
         lblIncomeNotes.TextAlign = ContentAlignment.MiddleLeft;
@@ -619,6 +678,7 @@ partial class MainForm
         txtIncomeNotes.Dock = DockStyle.Fill;
         txtIncomeNotes.BorderStyle = BorderStyle.FixedSingle;
         txtIncomeNotes.Multiline = true;
+        StyleTextBox(txtIncomeNotes);
 
         flpIncomeButtons.Dock = DockStyle.Fill;
         flpIncomeButtons.FlowDirection = FlowDirection.LeftToRight;
@@ -633,7 +693,6 @@ partial class MainForm
         btnIncomeClear.Width = 120;
         btnIncomeClear.Click += IncomeClearClicked;
 
-        // ✅ explicit button styling (beats overrides)
         StyleButton(btnIncomeAdd);
         StyleButton(btnIncomeClear);
 
@@ -659,39 +718,70 @@ partial class MainForm
 
         gbIncomeList.Dock = DockStyle.Fill;
         gbIncomeList.Text = "Income List";
-        gbIncomeList.BackColor = ThemePanel;
-        gbIncomeList.ForeColor = ThemeText;
+        StyleGroupBox(gbIncomeList);
+
+        var tlpIncomeList = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            Padding = new Padding(0),
+        };
+        tlpIncomeList.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpIncomeList.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
 
         dgvIncome.Dock = DockStyle.Fill;
         dgvIncome.AllowUserToAddRows = false;
         dgvIncome.AllowUserToDeleteRows = false;
         dgvIncome.ReadOnly = true;
         dgvIncome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        ApplyDataGridTheme(dgvIncome);
 
-        gbIncomeList.Controls.Add(dgvIncome);
+        pnlIncomeListActions.Dock = DockStyle.Fill;
+        pnlIncomeListActions.BackColor = AppConfig.ThemePanel;
+
+        flpIncomeListActions.Dock = DockStyle.Fill;
+        flpIncomeListActions.FlowDirection = FlowDirection.LeftToRight;
+        flpIncomeListActions.WrapContents = false;
+        flpIncomeListActions.Padding = new Padding(12, 10, 12, 10);
+
+        btnIncomeDeleteSelected.Text = "Delete Selected";
+        btnIncomeDeleteSelected.Width = 160;
+        StyleButton(btnIncomeDeleteSelected);
+        toolTip.SetToolTip(btnIncomeDeleteSelected, "UI placeholder.\nLater: delete the selected income row.");
+
+        flpIncomeListActions.Controls.Add(btnIncomeDeleteSelected);
+        pnlIncomeListActions.Controls.Add(flpIncomeListActions);
+
+        tlpIncomeList.Controls.Add(dgvIncome, 0, 0);
+        tlpIncomeList.Controls.Add(pnlIncomeListActions, 0, 1);
+
+        gbIncomeList.Controls.Add(tlpIncomeList);
 
         scIncome.Panel1.Controls.Add(gbIncomeEntry);
         scIncome.Panel2.Controls.Add(gbIncomeList);
 
         tabIncome.Controls.Add(scIncome);
 
-        // ======================
-        // Expenses Tab
-        // ======================
+        #endregion
+
+        #region Expenses Tab
+
         tabExpenses.Text = "Expenses";
-        tabExpenses.BackColor = ThemeBack;
-        tabExpenses.ForeColor = ThemeText;
+        tabExpenses.BackColor = AppConfig.ThemeBack;
+        tabExpenses.ForeColor = AppConfig.ThemeText;
         tabExpenses.Padding = new Padding(12);
         tabExpenses.UseVisualStyleBackColor = false;
 
         scExpenses.Dock = DockStyle.Fill;
         scExpenses.Orientation = Orientation.Horizontal;
-        scExpenses.SplitterDistance = 240; // ✅ more space for grid
+
+        scExpenses.IsSplitterFixed = false;
+        scExpenses.SplitterWidth = 6;
 
         gbExpenseEntry.Dock = DockStyle.Fill;
         gbExpenseEntry.Text = "Add Expense";
-        gbExpenseEntry.BackColor = ThemePanel;
-        gbExpenseEntry.ForeColor = ThemeText;
+        StyleGroupBox(gbExpenseEntry);
 
         tlpExpenseEntry.Dock = DockStyle.Fill;
         tlpExpenseEntry.Padding = new Padding(12);
@@ -699,12 +789,12 @@ partial class MainForm
         tlpExpenseEntry.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
         tlpExpenseEntry.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         tlpExpenseEntry.RowCount = 6;
-        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // category
-        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // amount
-        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // date
-        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 38)); // recurring
-        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 90)); // ✅ notes smaller
-        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 46)); // buttons
+        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+        tlpExpenseEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
 
         lblExpenseCategory.Text = "Category:";
         lblExpenseCategory.TextAlign = ContentAlignment.MiddleLeft;
@@ -712,7 +802,8 @@ partial class MainForm
 
         cbExpenseCategory.Dock = DockStyle.Fill;
         cbExpenseCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbExpenseCategory.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" });
+        cbExpenseCategory.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" }); //TODO Move to AppConfig
+        StyleComboBox(cbExpenseCategory);
 
         lblExpenseAmount.Text = "Amount:";
         lblExpenseAmount.TextAlign = ContentAlignment.MiddleLeft;
@@ -721,12 +812,14 @@ partial class MainForm
         nudExpenseAmount.Dock = DockStyle.Fill;
         nudExpenseAmount.DecimalPlaces = 2;
         nudExpenseAmount.Maximum = 100000000;
+        StyleNumeric(nudExpenseAmount);
 
         lblExpenseDate.Text = "Date:";
         lblExpenseDate.TextAlign = ContentAlignment.MiddleLeft;
         lblExpenseDate.Dock = DockStyle.Fill;
 
         dtpExpenseDate.Dock = DockStyle.Fill;
+        StyleDateTimePicker(dtpExpenseDate);
 
         chkExpenseRecurring.Text = "Recurring";
         chkExpenseRecurring.AutoSize = true;
@@ -739,6 +832,7 @@ partial class MainForm
         cbExpenseFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" });
         cbExpenseFrequency.Enabled = false;
         cbExpenseFrequency.Width = 150;
+        StyleComboBox(cbExpenseFrequency);
 
         var pnlRecurring = new FlowLayoutPanel
         {
@@ -760,6 +854,7 @@ partial class MainForm
         txtExpenseNotes.Dock = DockStyle.Fill;
         txtExpenseNotes.BorderStyle = BorderStyle.FixedSingle;
         txtExpenseNotes.Multiline = true;
+        StyleTextBox(txtExpenseNotes);
 
         flpExpenseButtons.Dock = DockStyle.Fill;
         flpExpenseButtons.FlowDirection = FlowDirection.LeftToRight;
@@ -774,7 +869,6 @@ partial class MainForm
         btnExpenseClear.Width = 120;
         btnExpenseClear.Click += ExpenseClearClicked;
 
-        // ✅ explicit button styling (beats overrides)
         StyleButton(btnExpenseAdd);
         StyleButton(btnExpenseClear);
 
@@ -803,39 +897,83 @@ partial class MainForm
 
         gbExpenseList.Dock = DockStyle.Fill;
         gbExpenseList.Text = "Expense List";
-        gbExpenseList.BackColor = ThemePanel;
-        gbExpenseList.ForeColor = ThemeText;
+        StyleGroupBox(gbExpenseList);
+
+        var tlpExpenseList = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            Padding = new Padding(0),
+        };
+        tlpExpenseList.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpExpenseList.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
 
         dgvExpenses.Dock = DockStyle.Fill;
         dgvExpenses.AllowUserToAddRows = false;
         dgvExpenses.AllowUserToDeleteRows = false;
         dgvExpenses.ReadOnly = true;
         dgvExpenses.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        ApplyDataGridTheme(dgvExpenses);
 
-        gbExpenseList.Controls.Add(dgvExpenses);
+        pnlExpenseListActions.Dock = DockStyle.Fill;
+        pnlExpenseListActions.BackColor = AppConfig.ThemePanel;
+
+        flpExpenseListActions.Dock = DockStyle.Fill;
+        flpExpenseListActions.FlowDirection = FlowDirection.LeftToRight;
+        flpExpenseListActions.WrapContents = false;
+        flpExpenseListActions.Padding = new Padding(12, 10, 12, 10);
+
+        btnExpenseDeleteSelected.Text = "Delete Selected";
+        btnExpenseDeleteSelected.Width = 160;
+        StyleButton(btnExpenseDeleteSelected);
+        toolTip.SetToolTip(btnExpenseDeleteSelected, "UI placeholder.\nLater: delete the selected expense row.");
+
+        flpExpenseListActions.Controls.Add(btnExpenseDeleteSelected);
+        pnlExpenseListActions.Controls.Add(flpExpenseListActions);
+
+        tlpExpenseList.Controls.Add(dgvExpenses, 0, 0);
+        tlpExpenseList.Controls.Add(pnlExpenseListActions, 0, 1);
+
+        gbExpenseList.Controls.Add(tlpExpenseList);
 
         scExpenses.Panel1.Controls.Add(gbExpenseEntry);
         scExpenses.Panel2.Controls.Add(gbExpenseList);
 
         tabExpenses.Controls.Add(scExpenses);
 
-        // ======================
-        // Reports Tab
-        // ======================
+        #endregion
+
+        #region Reports Tab
+
         tabReports.Text = "Reports";
-        tabReports.BackColor = ThemeBack;
-        tabReports.ForeColor = ThemeText;
+        tabReports.BackColor = AppConfig.ThemeBack;
+        tabReports.ForeColor = AppConfig.ThemeText;
         tabReports.Padding = new Padding(12);
         tabReports.UseVisualStyleBackColor = false;
 
         scReports.Dock = DockStyle.Fill;
         scReports.Orientation = Orientation.Vertical;
-        scReports.SplitterDistance = 380;
+
+        scReports.HandleCreated += (_, __) =>
+        {
+            scReports.Panel1MinSize = 380;
+            scReports.Panel2MinSize = 380;
+
+            var w = scReports.ClientSize.Width;
+            if (w <= 0) return;
+
+            var target = w / 2; // ~50/50
+
+            var min = scReports.Panel1MinSize;
+            var max = Math.Max(min, w - scReports.Panel2MinSize);
+
+            scReports.SplitterDistance = Math.Max(min, Math.Min(target, max));
+        };
 
         gbReportFilters.Dock = DockStyle.Fill;
         gbReportFilters.Text = "Filters";
-        gbReportFilters.BackColor = ThemePanel;
-        gbReportFilters.ForeColor = ThemeText;
+        StyleGroupBox(gbReportFilters);
 
         tlpReportFilters.Dock = DockStyle.Fill;
         tlpReportFilters.Padding = new Padding(12);
@@ -844,39 +982,47 @@ partial class MainForm
         tlpReportFilters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         tlpReportFilters.RowCount = 8;
 
-        tlpReportFilters.RowStyles.Add(new RowStyle(SizeType.Absolute, 34)); // hint
+        tlpReportFilters.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
         for (int i = 0; i < 6; i++)
             tlpReportFilters.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
         tlpReportFilters.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         lblReportHint.Dock = DockStyle.Fill;
-        lblReportHint.ForeColor = ThemeMuted;
+        lblReportHint.ForeColor = AppConfig.ThemeMuted;
         lblReportHint.Text = "Filters stack. Leave blank to ignore.";
         lblReportHint.TextAlign = ContentAlignment.MiddleLeft;
 
         lblReportFrom.Text = "From:";
         lblReportFrom.TextAlign = ContentAlignment.MiddleLeft;
         lblReportFrom.Dock = DockStyle.Fill;
+
         dtpReportFrom.Dock = DockStyle.Fill;
+        StyleDateTimePicker(dtpReportFrom);
 
         lblReportTo.Text = "To:";
         lblReportTo.TextAlign = ContentAlignment.MiddleLeft;
         lblReportTo.Dock = DockStyle.Fill;
+
         dtpReportTo.Dock = DockStyle.Fill;
+        StyleDateTimePicker(dtpReportTo);
 
         lblReportMin.Text = "Amount Min:";
         lblReportMin.TextAlign = ContentAlignment.MiddleLeft;
         lblReportMin.Dock = DockStyle.Fill;
+
         nudReportMin.Dock = DockStyle.Fill;
         nudReportMin.DecimalPlaces = 2;
         nudReportMin.Maximum = 100000000;
+        StyleNumeric(nudReportMin);
 
         lblReportMax.Text = "Amount Max:";
         lblReportMax.TextAlign = ContentAlignment.MiddleLeft;
         lblReportMax.Dock = DockStyle.Fill;
+
         nudReportMax.Dock = DockStyle.Fill;
         nudReportMax.DecimalPlaces = 2;
         nudReportMax.Maximum = 100000000;
+        StyleNumeric(nudReportMax);
 
         lblReportSearch.Text = "Search:";
         lblReportSearch.TextAlign = ContentAlignment.MiddleLeft;
@@ -884,6 +1030,7 @@ partial class MainForm
 
         txtReportSearch.Dock = DockStyle.Fill;
         txtReportSearch.BorderStyle = BorderStyle.FixedSingle;
+        StyleTextBox(txtReportSearch);
 
         lblReportScope.Text = "Scope:";
         lblReportScope.TextAlign = ContentAlignment.MiddleLeft;
@@ -893,6 +1040,7 @@ partial class MainForm
         cbReportScope.DropDownStyle = ComboBoxStyle.DropDownList;
         cbReportScope.Items.AddRange(new object[] { "All", "Income Only", "Expenses Only" });
         cbReportScope.SelectedIndex = 0;
+        StyleComboBox(cbReportScope);
 
         flpReportButtons.Dock = DockStyle.Fill;
         flpReportButtons.FlowDirection = FlowDirection.LeftToRight;
@@ -915,7 +1063,6 @@ partial class MainForm
         btnExportExcel.Width = 130;
         btnExportExcel.Click += ExportExcelClicked;
 
-        // ✅ explicit style
         StyleButton(btnReportRun);
         StyleButton(btnReportClear);
         StyleButton(btnExportPdf);
@@ -954,14 +1101,14 @@ partial class MainForm
 
         gbReportResults.Dock = DockStyle.Fill;
         gbReportResults.Text = "Results";
-        gbReportResults.BackColor = ThemePanel;
-        gbReportResults.ForeColor = ThemeText;
+        StyleGroupBox(gbReportResults);
 
         dgvReportResults.Dock = DockStyle.Fill;
         dgvReportResults.AllowUserToAddRows = false;
         dgvReportResults.AllowUserToDeleteRows = false;
         dgvReportResults.ReadOnly = true;
         dgvReportResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        ApplyDataGridTheme(dgvReportResults);
 
         gbReportResults.Controls.Add(dgvReportResults);
 
@@ -970,18 +1117,19 @@ partial class MainForm
 
         tabReports.Controls.Add(scReports);
 
-        // ======================
-        // Settings Tab (same redesign)
-        // ======================
+        #endregion
+
+        #region Settings Tab
+
         tabSettings.Text = "Settings";
-        tabSettings.BackColor = ThemeBack;
-        tabSettings.ForeColor = ThemeText;
+        tabSettings.BackColor = AppConfig.ThemeBack;
+        tabSettings.ForeColor = AppConfig.ThemeText;
         tabSettings.Padding = new Padding(12);
         tabSettings.UseVisualStyleBackColor = false;
 
         pnlSettingsHeader.Dock = DockStyle.Top;
         pnlSettingsHeader.Height = 74;
-        pnlSettingsHeader.BackColor = ThemePanel;
+        pnlSettingsHeader.BackColor = AppConfig.ThemePanel;
 
         lblSettingsTitle.AutoSize = true;
         lblSettingsTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
@@ -989,7 +1137,7 @@ partial class MainForm
         lblSettingsTitle.Location = new Point(16, 12);
 
         lblSettingsHint.AutoSize = true;
-        lblSettingsHint.ForeColor = ThemeMuted;
+        lblSettingsHint.ForeColor = AppConfig.ThemeMuted;
         lblSettingsHint.Text = "Add categories here. They will show up in Income/Expenses dropdowns.";
         lblSettingsHint.Location = new Point(18, 44);
 
@@ -998,42 +1146,42 @@ partial class MainForm
 
         tlpSettingsRoot.Dock = DockStyle.Fill;
         tlpSettingsRoot.ColumnCount = 2;
-        tlpSettingsRoot.RowCount = 2;
+        tlpSettingsRoot.RowCount = 3;
         tlpSettingsRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         tlpSettingsRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         tlpSettingsRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpSettingsRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
         tlpSettingsRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
         tlpSettingsRoot.Padding = new Padding(0, 10, 0, 0);
 
         gbIncomeTypes.Dock = DockStyle.Fill;
         gbIncomeTypes.Text = "Income Categories";
-        gbIncomeTypes.BackColor = ThemePanel;
-        gbIncomeTypes.ForeColor = ThemeText;
+        StyleGroupBox(gbIncomeTypes);
 
         gbExpenseTypes.Dock = DockStyle.Fill;
         gbExpenseTypes.Text = "Expense Categories";
-        gbExpenseTypes.BackColor = ThemePanel;
-        gbExpenseTypes.ForeColor = ThemeText;
+        StyleGroupBox(gbExpenseTypes);
 
         // Income types layout
         tlpIncomeTypes.Dock = DockStyle.Fill;
         tlpIncomeTypes.Padding = new Padding(12);
         tlpIncomeTypes.ColumnCount = 1;
         tlpIncomeTypes.RowCount = 3;
-        tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // list
-        tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46)); // input + add
-        tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46)); // remove
+        tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+        tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
 
         lbIncomeTypes.Dock = DockStyle.Fill;
-        lbIncomeTypes.Items.AddRange(new object[] { "Salary", "Bonus", "Other" });
-        lbIncomeTypes.BackColor = ThemeInput;
-        lbIncomeTypes.ForeColor = ThemeText;
+        lbIncomeTypes.Items.AddRange(new object[] { "Salary", "Bonus", "Other" }); //TODO Move to AppSettings
+        StyleListBox(lbIncomeTypes);
 
         var pnlIncomeAddRow = new Panel { Dock = DockStyle.Fill };
+
         txtNewIncomeType.PlaceholderText = "New income category...";
         txtNewIncomeType.BorderStyle = BorderStyle.FixedSingle;
         txtNewIncomeType.Width = 260;
         txtNewIncomeType.Location = new Point(0, 10);
+        StyleTextBox(txtNewIncomeType);
 
         btnAddIncomeType.Text = "Add Category";
         btnAddIncomeType.Width = 150;
@@ -1069,20 +1217,21 @@ partial class MainForm
         tlpExpenseTypes.Padding = new Padding(12);
         tlpExpenseTypes.ColumnCount = 1;
         tlpExpenseTypes.RowCount = 3;
-        tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // list
-        tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46)); // input + add
-        tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46)); // remove
+        tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+        tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
 
         lbExpenseTypes.Dock = DockStyle.Fill;
-        lbExpenseTypes.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" });
-        lbExpenseTypes.BackColor = ThemeInput;
-        lbExpenseTypes.ForeColor = ThemeText;
+        lbExpenseTypes.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" }); //TODO Move to AppSettings
+        StyleListBox(lbExpenseTypes);
 
         var pnlExpenseAddRow = new Panel { Dock = DockStyle.Fill };
+
         txtNewExpenseType.PlaceholderText = "New expense category...";
         txtNewExpenseType.BorderStyle = BorderStyle.FixedSingle;
         txtNewExpenseType.Width = 260;
         txtNewExpenseType.Location = new Point(0, 10);
+        StyleTextBox(txtNewExpenseType);
 
         btnAddExpenseType.Text = "Add Category";
         btnAddExpenseType.Width = 150;
@@ -1113,9 +1262,38 @@ partial class MainForm
 
         gbExpenseTypes.Controls.Add(tlpExpenseTypes);
 
+        gbSavingsSettings.Dock = DockStyle.Fill;
+        gbSavingsSettings.Text = "Savings";
+        StyleGroupBox(gbSavingsSettings);
+
+        tlpSavingsSettings.Dock = DockStyle.Fill;
+        tlpSavingsSettings.Padding = new Padding(12);
+        tlpSavingsSettings.ColumnCount = 2;
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        tlpSavingsSettings.RowCount = 2;
+        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
+        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        lblSavingsPercent.Text = "Savings %:";
+        lblSavingsPercent.TextAlign = ContentAlignment.MiddleLeft;
+        lblSavingsPercent.Dock = DockStyle.Fill;
+
+        nudSavingsPercent.Dock = DockStyle.Left;
+        nudSavingsPercent.Width = 140;
+        nudSavingsPercent.DecimalPlaces = 1;
+        nudSavingsPercent.Minimum = 0;
+        nudSavingsPercent.Maximum = 100;
+        StyleNumeric(nudSavingsPercent);
+
+        tlpSavingsSettings.Controls.Add(lblSavingsPercent, 0, 0);
+        tlpSavingsSettings.Controls.Add(nudSavingsPercent, 1, 0);
+        
+        gbSavingsSettings.Controls.Add(tlpSavingsSettings);
+
         // Actions row
         pnlSettingsActions.Dock = DockStyle.Fill;
-        pnlSettingsActions.BackColor = ThemePanel;
+        pnlSettingsActions.BackColor = AppConfig.ThemePanel;
 
         flpSettingsActions.Dock = DockStyle.Fill;
         flpSettingsActions.FlowDirection = FlowDirection.LeftToRight;
@@ -1136,126 +1314,35 @@ partial class MainForm
         flpSettingsActions.Controls.Add(btnSettingsResetDefaults);
         pnlSettingsActions.Controls.Add(flpSettingsActions);
 
+        // Layout adds
         tlpSettingsRoot.Controls.Add(gbIncomeTypes, 0, 0);
         tlpSettingsRoot.Controls.Add(gbExpenseTypes, 1, 0);
-        tlpSettingsRoot.Controls.Add(pnlSettingsActions, 0, 1);
+
+        tlpSettingsRoot.Controls.Add(gbSavingsSettings, 0, 1);
+        tlpSettingsRoot.SetColumnSpan(gbSavingsSettings, 2);
+
+        tlpSettingsRoot.Controls.Add(pnlSettingsActions, 0, 2);
         tlpSettingsRoot.SetColumnSpan(pnlSettingsActions, 2);
 
         tabSettings.Controls.Add(tlpSettingsRoot);
         tabSettings.Controls.Add(pnlSettingsHeader);
 
-        // ======================
-        // Theme pass (inputs + grids)
-        // ======================
-        ApplyDarkThemeToControls(this);
+        #endregion
 
-        // ======================
-        // Final form composition
-        // ======================
+        #region Final Form Composition
+
         Controls.Add(tabMain);
         Controls.Add(menuMain);
-        Controls.Add(statusStrip);
+
+        #endregion
+
+        #region ResumeLayout
 
         ResumeLayout(false);
         PerformLayout();
+
+        #endregion
     }
 
-    // Force consistent button styling (fixes "black buttons" from visual style overrides)
-    private void StyleButton(Button btn)
-    {
-        btn.UseVisualStyleBackColor = false;
-        btn.FlatStyle = FlatStyle.Flat;
-        btn.FlatAppearance.BorderColor = ThemeBorder;
-        btn.FlatAppearance.BorderSize = 1;
-
-        btn.BackColor = ThemeAccent;
-        btn.ForeColor = Color.White;
-
-        btn.FlatAppearance.MouseOverBackColor = ThemeAccentHover;
-        btn.FlatAppearance.MouseDownBackColor = ThemeAccentDown;
-
-        btn.AutoSize = false;
-        btn.Height = 36;
-        btn.Padding = new Padding(14, 0, 14, 0);
-        btn.TextAlign = ContentAlignment.MiddleCenter;
-    }
-
-    private void ApplyDarkThemeToControls(Control root)
-    {
-        foreach (Control c in root.Controls)
-        {
-            if (c is TabPage)
-                c.BackColor = ThemeBack;
-
-            c.ForeColor = ThemeText;
-
-            if (c is GroupBox gb)
-            {
-                gb.BackColor = ThemePanel;
-                gb.ForeColor = ThemeText;
-            }
-
-            if (c is TextBox tb)
-            {
-                tb.BackColor = ThemeInput;
-                tb.ForeColor = ThemeText;
-            }
-
-            if (c is ComboBox cb)
-            {
-                cb.BackColor = ThemeInput;
-                cb.ForeColor = ThemeText;
-                cb.FlatStyle = FlatStyle.Flat;
-            }
-
-            if (c is ListBox lb)
-            {
-                lb.BackColor = ThemeInput;
-                lb.ForeColor = ThemeText;
-            }
-
-            if (c is NumericUpDown nud)
-            {
-                nud.BackColor = ThemeInput;
-                nud.ForeColor = ThemeText;
-            }
-
-            if (c is DateTimePicker dtp)
-            {
-                dtp.CalendarMonthBackground = ThemeInput;
-                dtp.CalendarForeColor = ThemeText;
-            }
-
-            if (c is Button btn)
-            {
-                // Ensure theme pass doesn't revert anything.
-                StyleButton(btn);
-            }
-
-            if (c is CheckBox chk)
-                chk.ForeColor = ThemeText;
-
-            if (c is DataGridView grid)
-                ApplyDataGridTheme(grid);
-
-            if (c.HasChildren)
-                ApplyDarkThemeToControls(c);
-        }
-    }
-
-    private void ApplyDataGridTheme(DataGridView grid)
-    {
-        grid.BackgroundColor = ThemePanel;
-        grid.GridColor = ThemeBorder;
-        grid.BorderStyle = BorderStyle.None;
-
-        grid.DefaultCellStyle.BackColor = ThemeBack;
-        grid.DefaultCellStyle.ForeColor = ThemeText;
-        grid.DefaultCellStyle.SelectionBackColor = ThemeTabActive;
-        grid.DefaultCellStyle.SelectionForeColor = Color.White;
-
-        grid.ColumnHeadersDefaultCellStyle.BackColor = ThemePanel;
-        grid.ColumnHeadersDefaultCellStyle.ForeColor = ThemeText;
-        grid.EnableHeadersVisualStyles = false;
-    }
+    #endregion
 }

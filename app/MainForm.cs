@@ -1,31 +1,28 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
+using App.Constants;
+using App.Utils;
 
 namespace App;
 
 public partial class MainForm : Form
 {
+    #region Constructor
+
     public MainForm()
     {
         InitializeComponent();
+        Shown += MainForm_Shown;
     }
 
-    private void ShowNotImplemented(string feature)
+    #endregion
+
+    #region Helpers
+
+    private static void ShowNotImplemented(string feature)
         => MessageBox.Show($"Not implemented\n\nFeature: {feature}", "Simple Budget");
 
-    // ===== Menu =====
-    private void FileExitClicked(object? sender, EventArgs e)
-    {
-        // TODO: confirm exit if there are unsaved changes once persistence exists
-        Close();
-    }
+    #endregion
 
-    private void ViewRefreshClicked(object? sender, EventArgs e)
-    {
-        // TODO: re-load current scope (week/month/year) and refresh grids + totals
-        ShowNotImplemented("Refresh (reload data)");
-    }
+    #region Menu Handlers
 
     private void HelpDocsClicked(object? sender, EventArgs e)
     {
@@ -36,17 +33,33 @@ public partial class MainForm : Form
     private void HelpAboutClicked(object? sender, EventArgs e)
     {
         // TODO: show About dialog with version, author, license, links
-        MessageBox.Show("Simple Budget\nv0.1.0 (placeholder)\n\nA simple income/expense tracker.", "About");
+        MessageBox.Show($"Simple Budget\nVersion {XmlHelpers.GetAppVersion()}\n\nA simple income/expense tracker.", "About");
     }
 
-    // ===== Dashboard =====
+    private void LanguageEnglishClicked(object? sender, EventArgs e)
+    {
+        ShowNotImplemented("Language: English");
+    }
+
+    private void LanguageSpanishClicked(object? sender, EventArgs e)
+    {
+        ShowNotImplemented("Language: Spanish");
+    }
+
+    #endregion
+
+    #region Dashboard
+
     private void SummaryMonthChanged(object? sender, EventArgs e)
     {
         // TODO: load totals + grids for selected scope + anchor date
         ShowNotImplemented("Change dashboard date");
     }
 
-    // ===== Income =====
+    #endregion
+
+    #region Income
+
     private void IncomeAddClicked(object? sender, EventArgs e)
     {
         // TODO: validate fields, insert income record into SQLite, refresh grid + totals
@@ -59,7 +72,10 @@ public partial class MainForm : Form
         ShowNotImplemented("Clear Income Entry");
     }
 
-    // ===== Expenses =====
+    #endregion
+
+    #region Expenses
+
     private void ExpenseRecurringChanged(object? sender, EventArgs e)
     {
         // TODO: enable/disable frequency selector based on recurring checkbox
@@ -78,7 +94,10 @@ public partial class MainForm : Form
         ShowNotImplemented("Clear Expense Entry");
     }
 
-    // ===== Reports =====
+    #endregion
+
+    #region Reports
+
     private void ReportRunClicked(object? sender, EventArgs e)
     {
         // TODO: build query based on filters and load results grid
@@ -103,7 +122,10 @@ public partial class MainForm : Form
         ShowNotImplemented("Export Excel");
     }
 
-    // ===== Settings =====
+    #endregion
+
+    #region Settings
+
     private void AddIncomeTypeClicked(object? sender, EventArgs e)
     {
         // TODO: validate + add new income category, persist to config/db, update dropdowns
@@ -140,6 +162,10 @@ public partial class MainForm : Form
         ShowNotImplemented("Reset Defaults");
     }
 
+    #endregion
+
+    #region Tabs Rendering
+
     private void TabMain_DrawItem(object? sender, DrawItemEventArgs e)
     {
         if (sender is not TabControl tc) return;
@@ -148,15 +174,13 @@ public partial class MainForm : Form
         var isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
         var r = e.Bounds;
-        r.Inflate(-2, -2);
 
-        var bg = isSelected ? ThemeTabActive : ThemeTabInactive;
-        var fg = isSelected ? Color.White : ThemeText;
-        var border = ThemeBorder;
+        var bg = isSelected ? AppConfig.ThemeTabActive : AppConfig.ThemeTabInactive;
+        var fg = isSelected ? Color.White : AppConfig.ThemeText;
 
         using var backBrush = new SolidBrush(bg);
         using var textBrush = new SolidBrush(fg);
-        using var pen = new Pen(border);
+        using var pen = new Pen(AppConfig.ThemeBorder);
 
         e.Graphics.FillRectangle(backBrush, r);
         e.Graphics.DrawRectangle(pen, r);
@@ -164,4 +188,132 @@ public partial class MainForm : Form
         var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         e.Graphics.DrawString(page.Text, Font, textBrush, r, sf);
     }
+
+    #endregion
+
+    #region Form Events
+
+    private void MainForm_Shown(object? sender, EventArgs e)
+    {
+        ConfigureSplitSafe(
+            scIncome,
+            panel1Min: 260,
+            panel2Min: 200,
+            panel1Target: 290
+        );
+
+        ConfigureSplitSafe(
+            scExpenses,
+            panel1Min: 300,
+            panel2Min: 200,
+            panel1Target: 330
+        );
+    }
+
+    #endregion
+
+    #region Layout Helpers
+
+    private static void ConfigureSplitSafe(SplitContainer sc, int panel1Min, int panel2Min, int panel1Target)
+    {
+        sc.Panel1MinSize = panel1Min;
+        sc.Panel2MinSize = panel2Min;
+
+        var total = sc.ClientSize.Height;
+        if (total <= 0) return;
+
+        var min = sc.Panel1MinSize;
+        var max = Math.Max(min, total - sc.Panel2MinSize);
+
+        sc.SplitterDistance = Math.Max(min, Math.Min(panel1Target, max));
+
+        sc.FixedPanel = FixedPanel.None;
+        sc.IsSplitterFixed = false;
+        sc.SplitterWidth = 6;
+    }
+
+    #endregion
+
+    #region Theme Helpers
+
+    private static void StyleGroupBox(GroupBox gb)
+    {
+        gb.BackColor = AppConfig.ThemePanel;
+        gb.ForeColor = AppConfig.ThemeText;
+    }
+
+    private static void StyleTextBox(TextBox tb)
+    {
+        tb.BackColor = AppConfig.ThemeInput;
+        tb.ForeColor = AppConfig.ThemeText;
+    }
+
+    private static void StyleComboBox(ComboBox cb)
+    {
+        cb.BackColor = AppConfig.ThemeInput;
+        cb.ForeColor = AppConfig.ThemeText;
+        cb.FlatStyle = FlatStyle.Flat;
+    }
+
+    private static void StyleDateTimePicker(DateTimePicker dtp)
+    {
+        dtp.CalendarMonthBackground = AppConfig.ThemeInput;
+        dtp.CalendarForeColor = AppConfig.ThemeText;
+    }
+
+    private static void StyleNumeric(NumericUpDown nud)
+    {
+        nud.BackColor = AppConfig.ThemeInput;
+        nud.ForeColor = AppConfig.ThemeText;
+    }
+
+    private static void StyleListBox(ListBox lb)
+    {
+        lb.BackColor = AppConfig.ThemeInput;
+        lb.ForeColor = AppConfig.ThemeText;
+        lb.BorderStyle = BorderStyle.FixedSingle;
+    }
+
+    // Force consistent button styling
+    private static void StyleButton(Button btn)
+    {
+        btn.UseVisualStyleBackColor = false;
+        btn.FlatStyle = FlatStyle.Flat;
+        btn.FlatAppearance.BorderColor = AppConfig.ThemeBorder;
+        btn.FlatAppearance.BorderSize = 1;
+
+        btn.BackColor = AppConfig.ThemeAccent;
+        btn.ForeColor = Color.White;
+
+        btn.FlatAppearance.MouseOverBackColor = AppConfig.ThemeAccentHover;
+        btn.FlatAppearance.MouseDownBackColor = AppConfig.ThemeAccentDown;
+
+        btn.AutoSize = false;
+        btn.Height = 36;
+        btn.Padding = new Padding(14, 0, 14, 0);
+        btn.TextAlign = ContentAlignment.MiddleCenter;
+    }
+
+    private static void ApplyDataGridTheme(DataGridView grid)
+    {
+        grid.BackgroundColor = AppConfig.ThemePanel;
+        grid.GridColor = AppConfig.ThemeBorder;
+        grid.BorderStyle = BorderStyle.None;
+
+        grid.EnableHeadersVisualStyles = false;
+        grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        grid.RowHeadersVisible = false;
+
+        grid.DefaultCellStyle.BackColor = AppConfig.ThemeBack;
+        grid.DefaultCellStyle.ForeColor = AppConfig.ThemeText;
+        grid.DefaultCellStyle.SelectionBackColor = AppConfig.ThemeTabActive;
+        grid.DefaultCellStyle.SelectionForeColor = Color.White;
+
+        grid.ColumnHeadersDefaultCellStyle.BackColor = AppConfig.ThemePanel;
+        grid.ColumnHeadersDefaultCellStyle.ForeColor = AppConfig.ThemeText;
+
+        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(38, 38, 38);
+    }
+
+    #endregion
 }

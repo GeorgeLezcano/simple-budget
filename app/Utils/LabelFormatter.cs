@@ -14,9 +14,9 @@ public static class LabelFormatter
     /// </summary>
     /// <param name="text">Text to display</param>
     /// <returns>Formatted shell label</returns>
-    public static string AppShellText(string text)
+    public static string AppShellText()
     {
-        return $"{text} {XmlHelpers.GetAppVersion()}";
+        return $"{AppConfig.ShellText} v{XmlHelpers.GetAppVersion()}";
     }
-
+    
 }
