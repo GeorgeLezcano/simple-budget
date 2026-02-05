@@ -1,3 +1,5 @@
+using App.Constants;
+
 namespace App.Utils;
 
 /// <summary>
@@ -5,12 +7,14 @@ namespace App.Utils;
 /// </summary>
 public static class LabelFormatter
 {
+    public static Language SelectedLanguage { get; set; } = Language.ENGLISH;
+
     /// <summary>
-    /// Sets the shell label text including the version.
+    /// Gets the shell label text including the version.
     /// </summary>
     /// <param name="text">Text to display</param>
     /// <returns>Formatted shell label</returns>
-    public static string SetAppShellText(string text)
+    public static string AppShellText(string text)
     {
         return $"{text} {XmlHelpers.GetAppVersion()}";
     }

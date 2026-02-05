@@ -14,7 +14,7 @@ static class Program
     [STAThread]
     static void Main()
     {
-         using var mutex = new Mutex(initiallyOwned: true, name: @"Global\SimpleBudget_SingleInstance", out bool isNewInstance);
+        using var mutex = new Mutex(initiallyOwned: true, name: @"Global\SimpleBudget_SingleInstance", out bool isNewInstance);
         if (!isNewInstance)
         {
             MessageBox.Show("Simple Budget is already running.", "SimpleBudget", MessageBoxButtons.OK, MessageBoxIcon.Information);
