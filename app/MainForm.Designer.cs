@@ -51,11 +51,6 @@ partial class MainForm
     private Label lblSavingsTotalTitle;
     private Label lblSavingsTotalValue;
 
-    private Label lblDashDailyLeftTitle;
-    private Label lblDashDailyLeftValue;
-    private Label lblDashProjectedSavingsTitle;
-    private Label lblDashProjectedSavingsValue;
-
     private Label lblDashRange;
     private ComboBox cbDashRange;
 
@@ -252,11 +247,6 @@ partial class MainForm
         lblSavingsTotalTitle = new Label();
         lblSavingsTotalValue = new Label();
 
-        lblDashDailyLeftTitle = new Label();
-        lblDashDailyLeftValue = new Label();
-        lblDashProjectedSavingsTitle = new Label();
-        lblDashProjectedSavingsValue = new Label();
-
         lblDashRange = new Label();
         cbDashRange = new ComboBox();
 
@@ -398,8 +388,8 @@ partial class MainForm
         #region MainForm
 
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(AppConfig.ShellWidth, AppConfig.ShellHeight);
-        MinimumSize = new Size(1100, 720); //TODO Move to AppConfig
+        ClientSize = new Size(1200, 800);
+        MinimumSize = new Size(1100, 720);
         StartPosition = FormStartPosition.CenterScreen;
         Text = LabelFormatter.AppShellText();
         Icon = (Icon)resources.GetObject(AppConfig.IconName);
@@ -529,13 +519,12 @@ partial class MainForm
         tlpDashTotals.ColumnCount = 2;
         tlpDashTotals.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
         tlpDashTotals.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
-        tlpDashTotals.RowCount = 6;
+        tlpDashTotals.RowCount = 4;
+
         tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
-        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
-        tlpDashTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
 
         lblIncomeTotalTitle.AutoSize = true;
         lblIncomeTotalTitle.Text = "Total Income";
@@ -561,22 +550,6 @@ partial class MainForm
         lblNetTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         lblNetTotalValue.Text = "$0.00";
 
-        lblDashDailyLeftTitle.AutoSize = true;
-        lblDashDailyLeftTitle.Text = "Remaining daily (est.)";
-        lblDashDailyLeftTitle.ForeColor = AppConfig.ThemeMuted;
-
-        lblDashDailyLeftValue.AutoSize = true;
-        lblDashDailyLeftValue.Text = "$0.00";
-        lblDashDailyLeftValue.ForeColor = AppConfig.ThemeMuted;
-
-        lblDashProjectedSavingsTitle.AutoSize = true;
-        lblDashProjectedSavingsTitle.Text = "Projected savings (est.)";
-        lblDashProjectedSavingsTitle.ForeColor = AppConfig.ThemeMuted;
-
-        lblDashProjectedSavingsValue.AutoSize = true;
-        lblDashProjectedSavingsValue.Text = "$0.00";
-        lblDashProjectedSavingsValue.ForeColor = AppConfig.ThemeMuted;
-
         tlpDashTotals.Controls.Add(lblIncomeTotalTitle, 0, 0);
         tlpDashTotals.Controls.Add(lblIncomeTotalValue, 1, 0);
         tlpDashTotals.Controls.Add(lblExpenseTotalTitle, 0, 1);
@@ -585,11 +558,6 @@ partial class MainForm
         tlpDashTotals.Controls.Add(lblSavingsTotalValue, 1, 2);
         tlpDashTotals.Controls.Add(lblNetTotalTitle, 0, 3);
         tlpDashTotals.Controls.Add(lblNetTotalValue, 1, 3);
-
-        tlpDashTotals.Controls.Add(lblDashDailyLeftTitle, 0, 4);
-        tlpDashTotals.Controls.Add(lblDashDailyLeftValue, 1, 4);
-        tlpDashTotals.Controls.Add(lblDashProjectedSavingsTitle, 0, 5);
-        tlpDashTotals.Controls.Add(lblDashProjectedSavingsValue, 1, 5);
 
         gbDashTotals.Controls.Add(tlpDashTotals);
 
@@ -829,23 +797,37 @@ partial class MainForm
         lblExpenseFrequency.AutoSize = true;
 
         cbExpenseFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbExpenseFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" });
+        cbExpenseFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" }); //TODO Getting from enum
         cbExpenseFrequency.Enabled = false;
         cbExpenseFrequency.Width = 150;
         StyleComboBox(cbExpenseFrequency);
 
-        var pnlRecurring = new FlowLayoutPanel
+        var pnlRecurring = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
-            Padding = new Padding(0, 6, 0, 0),
-            AutoScroll = false
+            ColumnCount = 4,
+            RowCount = 1,
+            Padding = new Padding(0),
+            Margin = new Padding(0)
         };
-        pnlRecurring.Controls.Add(chkExpenseRecurring);
-        pnlRecurring.Controls.Add(new Label { Width = 12, Text = "" });
-        pnlRecurring.Controls.Add(lblExpenseFrequency);
-        pnlRecurring.Controls.Add(cbExpenseFrequency);
+        pnlRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        pnlRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 14));
+        pnlRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        pnlRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        chkExpenseRecurring.Margin = new Padding(0, 8, 0, 0);
+        chkExpenseRecurring.Anchor = AnchorStyles.Left;
+
+        lblExpenseFrequency.Margin = new Padding(0, 9, 0, 0);
+        lblExpenseFrequency.Anchor = AnchorStyles.Left;
+
+        cbExpenseFrequency.Margin = new Padding(6, 6, 0, 0);
+        cbExpenseFrequency.Anchor = AnchorStyles.Left;
+
+        pnlRecurring.Controls.Add(chkExpenseRecurring, 0, 0);
+        pnlRecurring.Controls.Add(new Label { Width = 14, Text = "", Margin = new Padding(0) }, 1, 0);
+        pnlRecurring.Controls.Add(lblExpenseFrequency, 2, 0);
+        pnlRecurring.Controls.Add(cbExpenseFrequency, 3, 0);
 
         lblExpenseNotes.Text = "Notes:";
         lblExpenseNotes.TextAlign = ContentAlignment.MiddleLeft;
@@ -1175,22 +1157,33 @@ partial class MainForm
         lbIncomeTypes.Items.AddRange(new object[] { "Salary", "Bonus", "Other" }); //TODO Move to AppSettings
         StyleListBox(lbIncomeTypes);
 
-        var pnlIncomeAddRow = new Panel { Dock = DockStyle.Fill };
+        var pnlIncomeAddRow = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1,
+            Padding = new Padding(0),
+            Margin = new Padding(0),
+        };
+        pnlIncomeAddRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        pnlIncomeAddRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
 
         txtNewIncomeType.PlaceholderText = "New income category...";
         txtNewIncomeType.BorderStyle = BorderStyle.FixedSingle;
-        txtNewIncomeType.Width = 260;
-        txtNewIncomeType.Location = new Point(0, 10);
+        txtNewIncomeType.Dock = DockStyle.Fill;
+        txtNewIncomeType.Margin = new Padding(0, 8, 8, 0);
+        txtNewIncomeType.AutoSize = false;
+        txtNewIncomeType.Height = 32;
         StyleTextBox(txtNewIncomeType);
 
         btnAddIncomeType.Text = "Add Category";
-        btnAddIncomeType.Width = 150;
-        btnAddIncomeType.Location = new Point(270, 8);
+        btnAddIncomeType.Dock = DockStyle.Fill;
+        btnAddIncomeType.Margin = new Padding(0, 6, 0, 0);
         btnAddIncomeType.Click += AddIncomeTypeClicked;
         StyleButton(btnAddIncomeType);
 
-        pnlIncomeAddRow.Controls.Add(txtNewIncomeType);
-        pnlIncomeAddRow.Controls.Add(btnAddIncomeType);
+        pnlIncomeAddRow.Controls.Add(txtNewIncomeType, 0, 0);
+        pnlIncomeAddRow.Controls.Add(btnAddIncomeType, 1, 0);
 
         btnRemoveIncomeType.Text = "Remove Selected";
         btnRemoveIncomeType.Width = 180;
@@ -1212,7 +1205,6 @@ partial class MainForm
 
         gbIncomeTypes.Controls.Add(tlpIncomeTypes);
 
-        // Expense types layout
         tlpExpenseTypes.Dock = DockStyle.Fill;
         tlpExpenseTypes.Padding = new Padding(12);
         tlpExpenseTypes.ColumnCount = 1;
@@ -1225,22 +1217,33 @@ partial class MainForm
         lbExpenseTypes.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" }); //TODO Move to AppSettings
         StyleListBox(lbExpenseTypes);
 
-        var pnlExpenseAddRow = new Panel { Dock = DockStyle.Fill };
+        var pnlExpenseAddRow = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1,
+            Padding = new Padding(0),
+            Margin = new Padding(0),
+        };
+        pnlExpenseAddRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        pnlExpenseAddRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
 
         txtNewExpenseType.PlaceholderText = "New expense category...";
         txtNewExpenseType.BorderStyle = BorderStyle.FixedSingle;
-        txtNewExpenseType.Width = 260;
-        txtNewExpenseType.Location = new Point(0, 10);
+        txtNewExpenseType.Dock = DockStyle.Fill;
+        txtNewExpenseType.Margin = new Padding(0, 8, 8, 0);
+        txtNewExpenseType.AutoSize = false;
+        txtNewExpenseType.Height = 32;
         StyleTextBox(txtNewExpenseType);
 
         btnAddExpenseType.Text = "Add Category";
-        btnAddExpenseType.Width = 150;
-        btnAddExpenseType.Location = new Point(270, 8);
+        btnAddExpenseType.Dock = DockStyle.Fill;
+        btnAddExpenseType.Margin = new Padding(0, 6, 0, 0);
         btnAddExpenseType.Click += AddExpenseTypeClicked;
         StyleButton(btnAddExpenseType);
 
-        pnlExpenseAddRow.Controls.Add(txtNewExpenseType);
-        pnlExpenseAddRow.Controls.Add(btnAddExpenseType);
+        pnlExpenseAddRow.Controls.Add(txtNewExpenseType, 0, 0);
+        pnlExpenseAddRow.Controls.Add(btnAddExpenseType, 1, 0);
 
         btnRemoveExpenseType.Text = "Remove Selected";
         btnRemoveExpenseType.Width = 180;
@@ -1269,8 +1272,10 @@ partial class MainForm
         tlpSavingsSettings.Dock = DockStyle.Fill;
         tlpSavingsSettings.Padding = new Padding(12);
         tlpSavingsSettings.ColumnCount = 2;
-        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
         tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
         tlpSavingsSettings.RowCount = 2;
         tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -1280,7 +1285,8 @@ partial class MainForm
         lblSavingsPercent.Dock = DockStyle.Fill;
 
         nudSavingsPercent.Dock = DockStyle.Left;
-        nudSavingsPercent.Width = 140;
+        nudSavingsPercent.Margin = new Padding(0, 6, 0, 0);
+        nudSavingsPercent.Width = 120;
         nudSavingsPercent.DecimalPlaces = 1;
         nudSavingsPercent.Minimum = 0;
         nudSavingsPercent.Maximum = 100;
@@ -1288,7 +1294,7 @@ partial class MainForm
 
         tlpSavingsSettings.Controls.Add(lblSavingsPercent, 0, 0);
         tlpSavingsSettings.Controls.Add(nudSavingsPercent, 1, 0);
-        
+
         gbSavingsSettings.Controls.Add(tlpSavingsSettings);
 
         // Actions row

@@ -38,11 +38,14 @@ public partial class MainForm : Form
 
     private void LanguageEnglishClicked(object? sender, EventArgs e)
     {
-        ShowNotImplemented("Language: English");
+        LabelFormatter.SelectedLanguage = Language.ENGLISH;
+        //TODO RefreshAppLabels()
     }
 
     private void LanguageSpanishClicked(object? sender, EventArgs e)
     {
+        LabelFormatter.SelectedLanguage = Language.SPANISH;
+        //TODO RefreshAppLabels()
         ShowNotImplemented("Language: Spanish");
     }
 

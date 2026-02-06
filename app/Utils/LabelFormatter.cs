@@ -7,7 +7,7 @@ namespace App.Utils;
 /// </summary>
 public static class LabelFormatter
 {
-    public static Language SelectedLanguage { get; set; } = Language.ENGLISH;
+    public static Language SelectedLanguage { get; set; } = AppConfig.DefaultLanguage;
 
     /// <summary>
     /// Gets the shell label text including the version.
