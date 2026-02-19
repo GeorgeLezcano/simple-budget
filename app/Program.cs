@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
+using App.Services;
 
 namespace App;
 
@@ -23,6 +25,19 @@ static class Program
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm());
+
+        bool firstRun = DatabaseBootstrapper.EnsureDatabaseReady(out var dbPath);
+
+        var services = new ServiceCollection();
+
+        services.AddSingleton(new DatabaseService(dbPath));
+        services.AddSingleton<LedgerService>();
+        services.AddSingleton<SettingsService>();
+
+        services.AddTransient<MainForm>();
+
+        using var serviceProvider = services.BuildServiceProvider();
+
+        Application.Run(serviceProvider.GetRequiredService<MainForm>());
     }
 }

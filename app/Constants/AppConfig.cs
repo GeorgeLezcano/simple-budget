@@ -2,8 +2,9 @@ namespace App.Constants;
 
 /// <summary>
 /// Configuration for the Application.
+/// Default values to be loaded on startup.
 /// </summary>
-public static class AppConfig //TODO Consider loading from a config file? Hardocded defaults for now
+public static class AppConfig
 {
     #region Defaults
     public const string ShellText = "Simple Budget";

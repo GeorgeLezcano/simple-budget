@@ -1,15 +1,29 @@
 using App.Constants;
+using App.Services;
 using App.Utils;
 
 namespace App;
 
 public partial class MainForm : Form
 {
+    private readonly DatabaseService _db;
+
+    private readonly LedgerService _ledgerService;
+
+    private readonly SettingsService _settingsService;
+
     #region Constructor
 
-    public MainForm()
+    public MainForm(
+        DatabaseService db,
+        LedgerService ledgerService,
+        SettingsService settingsService
+    )
     {
         InitializeComponent();
+        _db = db;
+        _ledgerService = ledgerService;
+        _settingsService = settingsService;
         Shown += MainForm_Shown;
     }
 
