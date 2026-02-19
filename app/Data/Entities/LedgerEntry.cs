@@ -11,7 +11,7 @@ public class LedgerEntry
     /// <summary>
     /// Unique identifider of the entry.
     /// </summary>
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// Type is Income/Expense from enum. Stored as int.
@@ -20,7 +20,8 @@ public class LedgerEntry
     public int Type { get; set; }
 
     /// <summary>
-    /// Category list will be populated based on type in the dropdown. 
+    /// Category list will be populated based on type in the dropdown.
+    /// Examples can be "Rent, Salary"/
     /// </summary>
     public string Category { get; set; } = string.Empty;
 

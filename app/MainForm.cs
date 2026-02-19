@@ -78,6 +78,12 @@ public partial class MainForm : Form
 
     #region Income
 
+    private void IncomeRecurringChanged(object? sender, EventArgs e)
+    {
+        // TODO: enable/disable frequency selector based on recurring checkbox
+        cbIncomeFrequency.Enabled = chkIncomeRecurring.Checked;
+    }
+
     private void IncomeAddClicked(object? sender, EventArgs e)
     {
         // TODO: validate fields, insert income record into SQLite, refresh grid + totals
@@ -215,9 +221,9 @@ public partial class MainForm : Form
     {
         ConfigureSplitSafe(
             scIncome,
-            panel1Min: 260,
+            panel1Min: 300,
             panel2Min: 200,
-            panel1Target: 290
+            panel1Target: 330
         );
 
         ConfigureSplitSafe(

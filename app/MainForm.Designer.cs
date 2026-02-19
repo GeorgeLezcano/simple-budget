@@ -85,6 +85,10 @@ partial class MainForm
     private FlowLayoutPanel flpIncomeListActions;
     private Button btnIncomeDeleteSelected;
 
+    private CheckBox chkIncomeRecurring;
+    private Label lblIncomeFrequency;
+    private ComboBox cbIncomeFrequency;
+
     // Expenses
     private SplitContainer scExpenses;
     private GroupBox gbExpenseEntry;
@@ -280,6 +284,10 @@ partial class MainForm
         pnlIncomeListActions = new Panel();
         flpIncomeListActions = new FlowLayoutPanel();
         btnIncomeDeleteSelected = new Button();
+
+        chkIncomeRecurring = new CheckBox();
+        lblIncomeFrequency = new Label();
+        cbIncomeFrequency = new ComboBox();
 
         // Expenses
         scExpenses = new SplitContainer();
@@ -607,7 +615,8 @@ partial class MainForm
         tlpIncomeEntry.ColumnCount = 2;
         tlpIncomeEntry.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
         tlpIncomeEntry.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        tlpIncomeEntry.RowCount = 5;
+        tlpIncomeEntry.RowCount = 6;
+        tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
         tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
         tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
         tlpIncomeEntry.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
@@ -638,6 +647,46 @@ partial class MainForm
 
         dtpIncomeDate.Dock = DockStyle.Fill;
         StyleDateTimePicker(dtpIncomeDate);
+
+        chkIncomeRecurring.Text = "Recurring";
+        chkIncomeRecurring.AutoSize = true;
+        chkIncomeRecurring.CheckedChanged += IncomeRecurringChanged;
+
+        lblIncomeFrequency.Text = "Frequency:";
+        lblIncomeFrequency.AutoSize = true;
+
+        cbIncomeFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbIncomeFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" }); //TODO Getting from enum
+        cbIncomeFrequency.Enabled = false;
+        cbIncomeFrequency.Width = 150;
+        StyleComboBox(cbIncomeFrequency);
+
+        var pnlIncomeRecurring = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 4,
+            RowCount = 1,
+            Padding = new Padding(0),
+            Margin = new Padding(0)
+        };
+        pnlIncomeRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        pnlIncomeRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 14));
+        pnlIncomeRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        pnlIncomeRecurring.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        chkIncomeRecurring.Margin = new Padding(0, 8, 0, 0);
+        chkIncomeRecurring.Anchor = AnchorStyles.Left;
+
+        lblIncomeFrequency.Margin = new Padding(0, 9, 0, 0);
+        lblIncomeFrequency.Anchor = AnchorStyles.Left;
+
+        cbIncomeFrequency.Margin = new Padding(6, 6, 0, 0);
+        cbIncomeFrequency.Anchor = AnchorStyles.Left;
+
+        pnlIncomeRecurring.Controls.Add(chkIncomeRecurring, 0, 0);
+        pnlIncomeRecurring.Controls.Add(new Label { Width = 14, Text = "", Margin = new Padding(0) }, 1, 0);
+        pnlIncomeRecurring.Controls.Add(lblIncomeFrequency, 2, 0);
+        pnlIncomeRecurring.Controls.Add(cbIncomeFrequency, 3, 0);
 
         lblIncomeNotes.Text = "Notes:";
         lblIncomeNotes.TextAlign = ContentAlignment.MiddleLeft;
@@ -676,11 +725,15 @@ partial class MainForm
         tlpIncomeEntry.Controls.Add(lblIncomeDate, 0, 2);
         tlpIncomeEntry.Controls.Add(dtpIncomeDate, 1, 2);
 
-        tlpIncomeEntry.Controls.Add(lblIncomeNotes, 0, 3);
-        tlpIncomeEntry.Controls.Add(txtIncomeNotes, 1, 3);
+        tlpIncomeEntry.Controls.Add(new Label { Text = "", Dock = DockStyle.Fill }, 0, 3);
+        tlpIncomeEntry.Controls.Add(pnlIncomeRecurring, 1, 3);
 
-        tlpIncomeEntry.Controls.Add(flpIncomeButtons, 0, 4);
+        tlpIncomeEntry.Controls.Add(lblIncomeNotes, 0, 4);
+        tlpIncomeEntry.Controls.Add(txtIncomeNotes, 1, 4);
+
+        tlpIncomeEntry.Controls.Add(flpIncomeButtons, 0, 5);
         tlpIncomeEntry.SetColumnSpan(flpIncomeButtons, 2);
+
 
         gbIncomeEntry.Controls.Add(tlpIncomeEntry);
 
