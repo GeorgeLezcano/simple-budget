@@ -6,22 +6,23 @@ namespace App;
 
 public partial class MainForm : Form
 {
-    private readonly DatabaseService _db;
-
     private readonly LedgerService _ledgerService;
 
     private readonly SettingsService _settingsService;
 
     #region Constructor
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="ledgerService">Ledger service to handle DB requests for transactions</param>
+    /// <param name="settingsService">Settings service to handler DB requests for settings</param>
     public MainForm(
-        DatabaseService db,
         LedgerService ledgerService,
         SettingsService settingsService
     )
     {
         InitializeComponent();
-        _db = db;
         _ledgerService = ledgerService;
         _settingsService = settingsService;
         Shown += MainForm_Shown;

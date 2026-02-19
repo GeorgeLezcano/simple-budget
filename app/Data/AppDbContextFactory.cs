@@ -1,10 +1,11 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace App.Data;
 
 /// <summary>
-/// Factory for Database context.
+/// Factory for Database context helper.
+/// Design-time only (IDesignTimeDbContextFactory) so EF CLI can 
+/// create a context without the app running.
 /// </summary>
 public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
@@ -14,15 +15,8 @@ public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
     /// <returns>The database context</returns>
     public AppDbContext CreateDbContext(string[] args)
     {
-        var dbPath = DatabasePaths.DbFilePath;
-
-        string connectionString = DatabasePaths.BuildConnectionString(dbPath, createIfMissing: true);
-
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite(connectionString)
-            .EnableSensitiveDataLogging(false)
-            .Options;
-
+        string dbPath = DatabasePaths.DbFilePath;
+        var options = DbContextOptionsFactory.Create(dbPath, createIfMissing: false);
         return new AppDbContext(options);
     }
 }

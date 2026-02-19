@@ -1,8 +1,12 @@
 namespace App.Services;
 
-public class SettingsService(DatabaseService db)
+/// <summary>
+/// Service to handle database requests for settings.
+/// </summary>
+/// <param name="db">Database context provider</param>
+public class SettingsService(DbContextProvider db)
 {
-    private readonly DatabaseService _db = db;
+    private readonly DbContextProvider _db = db;
     
-    //TODO
+    //TODO the stuff
 }

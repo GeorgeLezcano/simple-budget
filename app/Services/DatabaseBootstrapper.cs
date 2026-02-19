@@ -1,4 +1,3 @@
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using App.Data;
 using App.Constants;
@@ -73,13 +72,7 @@ public static class DatabaseBootstrapper
     /// <returns>The database context</returns>
     private static AppDbContext CreateDbContext(string dbPath)
     {
-        string connectionString = DatabasePaths.BuildConnectionString(dbPath, createIfMissing: true);
-
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite(connectionString)
-            .EnableSensitiveDataLogging(false)
-            .Options;
-
+        var options = DbContextOptionsFactory.Create(dbPath, createIfMissing: true);
         return new AppDbContext(options);
     }
 
@@ -91,17 +84,24 @@ public static class DatabaseBootstrapper
     /// <returns>True if the database is ready; False otherwise.</returns>
     private static bool IsDatabaseHealthy(string dbPath, out string error)
     {
+        //TODO Improve the health check with better tests. Simple connection testing for now.
         try
         {
-            string connectionString = DatabasePaths.BuildConnectionString(dbPath, createIfMissing: false);
+            var options = DbContextOptionsFactory.Create(dbPath, createIfMissing: false);
 
-            using var conn = new SqliteConnection(connectionString);
-            conn.Open();
+            using var context = new AppDbContext(options);
 
-            //TODO Simple check, think about this more, what does it mean to be "healthy"
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table' LIMIT 1;";
-            _ = cmd.ExecuteScalar();
+            context.Database.OpenConnection();
+            try
+            {
+                using var cmd = context.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table' LIMIT 1;";
+                _ = cmd.ExecuteScalar();
+            }
+            finally
+            {
+                context.Database.CloseConnection();
+            }
 
             error = "";
             return true;

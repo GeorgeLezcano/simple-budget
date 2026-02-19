@@ -1,10 +1,15 @@
-using App.Data.Entities;
 
 namespace App.Services;
 
-public sealed class LedgerService(DatabaseService db)
+/// <summary>
+/// Service to handle database requests for transactions.
+/// </summary>
+/// <param name="db">Database context provider</param>
+public sealed class LedgerService(DbContextProvider db)
 {
-    private readonly DatabaseService _db = db;
+    private readonly DbContextProvider _db = db;
+
+    //TODO Implement this, below is a potential use example.
 
     // public void AddTransaction(string category, decimal amount)
     // {

@@ -30,7 +30,7 @@ static class Program
 
         var services = new ServiceCollection();
 
-        services.AddSingleton(new DatabaseService(dbPath));
+        services.AddSingleton(new DbContextProvider(dbPath));
         services.AddSingleton<LedgerService>();
         services.AddSingleton<SettingsService>();
 
