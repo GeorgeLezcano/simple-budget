@@ -58,7 +58,7 @@ public sealed class LedgerService(DbContextProvider db)
             return false;
         }
     }
-    
+
     /// <summary>
     /// Get all the categories of the provided type.
     /// See <see cref="LedgerEntryType"/> for more details.
@@ -74,6 +74,55 @@ public sealed class LedgerService(DbContextProvider db)
             .Where(c => c.Type == (int)type)
             .OrderBy(c => c.Name)
             .Select(c => c.Name)];
+    }
+
+    /// <summary>
+    /// Attempts to add a new category to the database. If it already exists, 
+    /// it will be ignored and still consider success.
+    /// </summary>
+    /// <param name="category">The category</param>
+    /// <returns>True if operation is successful, False otherwise</returns>
+    public bool AddCategory(TransactionCategory category)
+    {
+        try
+        {
+            using var context = _db.CreateContext();
+
+            if (context.Categories.Find(category.Name) is not null)
+                return true;
+
+            context.Categories.Add(category);
+            context.SaveChanges();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts to remove a new category from the database.
+    /// </summary>
+    /// <param name="category">The category</param>
+    /// <returns>True if operation is successful, False otherwise</returns>
+    public bool RemoveCategory(string category)
+    {
+        try
+        {
+            using var context = _db.CreateContext();
+
+            var entity = context.Categories.Find(category);
+            if (entity is null) return false;
+
+            context.Categories.Remove(entity);
+            context.SaveChanges();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
 }

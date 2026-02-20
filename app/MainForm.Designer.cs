@@ -763,6 +763,7 @@ partial class MainForm
         btnIncomeDeleteSelected.Text = "Delete Selected";
         btnIncomeDeleteSelected.Width = 160;
         StyleButton(btnIncomeDeleteSelected);
+        btnIncomeDeleteSelected.Click += IncomeDeleteSelectedClicked;
 
         flpIncomeListActions.Controls.Add(btnIncomeDeleteSelected);
         pnlIncomeListActions.Controls.Add(flpIncomeListActions);
@@ -954,6 +955,7 @@ partial class MainForm
         btnExpenseDeleteSelected.Text = "Delete Selected";
         btnExpenseDeleteSelected.Width = 160;
         StyleButton(btnExpenseDeleteSelected);
+        btnExpenseDeleteSelected.Click += ExpenseDeleteSelectedClicked;
 
         flpExpenseListActions.Controls.Add(btnExpenseDeleteSelected);
         pnlExpenseListActions.Controls.Add(flpExpenseListActions);

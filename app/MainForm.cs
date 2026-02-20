@@ -1,4 +1,5 @@
 using App.Constants;
+using App.Data.Entities;
 using App.Services;
 using App.Utils;
 
@@ -23,6 +24,7 @@ public partial class MainForm : Form
     )
     {
         InitializeComponent();
+        tabMain.SelectedIndexChanged += TabMain_SelectedIndexChanged;
         _ledgerService = ledgerService;
         _settingsService = settingsService;
         Shown += MainForm_Shown;
@@ -32,6 +34,7 @@ public partial class MainForm : Form
 
     #region Helpers
 
+    //Helper for not implemented features. Removing after
     private static void ShowNotImplemented(string feature)
         => MessageBox.Show($"Not implemented\n\nFeature: {feature}", "Simple Budget");
 
@@ -96,6 +99,13 @@ public partial class MainForm : Form
         ShowNotImplemented("Clear Income Entry");
     }
 
+    private void IncomeDeleteSelectedClicked(object? sender, EventArgs e)
+    {
+        // TODO: Delete the entry from the database
+        ShowNotImplemented("Delete Income Entry");
+    }
+
+
     #endregion
 
     #region Expenses
@@ -116,6 +126,12 @@ public partial class MainForm : Form
     {
         // TODO: clear expense entry fields
         ShowNotImplemented("Clear Expense Entry");
+    }
+
+    private void ExpenseDeleteSelectedClicked(object? sender, EventArgs e)
+    {
+        // TODO: Delete the entry from the database
+        ShowNotImplemented("Delete Expense Entry");
     }
 
     #endregion
@@ -152,26 +168,82 @@ public partial class MainForm : Form
 
     private void AddIncomeTypeClicked(object? sender, EventArgs e)
     {
-        // TODO: validate + add new income category, persist to config/db, update dropdowns
-        ShowNotImplemented("Add Income Category");
+        var name = txtNewIncomeType.Text.Trim();
+        if (string.IsNullOrWhiteSpace(name)) return;
+        name = name.ToLower();
+        name = char.ToUpper(name[0]) + name[1..];
+
+        var ok = _ledgerService.AddCategory(new TransactionCategory
+        {
+            Name = name,
+            Type = (int)LedgerEntryType.Income
+        });
+
+        if (!ok)
+        {
+            MessageBox.Show("Failed to add category.", "Simple Budget");
+            return;
+        }
+
+        txtNewIncomeType.Clear();
+
+        RefreshSettingsTab();
+        RefreshIncomeTab();
     }
 
     private void RemoveIncomeTypeClicked(object? sender, EventArgs e)
     {
-        // TODO: remove selected income category (with safety checks) and update dropdowns
-        ShowNotImplemented("Remove Income Category");
+        if (lbIncomeTypes.SelectedItem is not string name) return;
+
+        var ok = _ledgerService.RemoveCategory(name);
+        if (!ok)
+        {
+            MessageBox.Show("Failed to remove category.", "Simple Budget");
+            return;
+        }
+
+        RefreshSettingsTab();
+        RefreshIncomeTab();
     }
 
     private void AddExpenseTypeClicked(object? sender, EventArgs e)
     {
-        // TODO: validate + add new expense category, persist to config/db, update dropdowns
-        ShowNotImplemented("Add Expense Category");
+        var name = txtNewExpenseType.Text.Trim();
+        if (string.IsNullOrWhiteSpace(name)) return;
+        name = name.ToLower();
+        name = char.ToUpper(name[0]) + name[1..];
+
+        var ok = _ledgerService.AddCategory(new TransactionCategory
+        {
+            Name = name,
+            Type = (int)LedgerEntryType.Expense
+        });
+
+        if (!ok)
+        {
+            MessageBox.Show("Failed to add category.", "Simple Budget");
+            return;
+        }
+
+        txtNewExpenseType.Clear();
+
+        RefreshSettingsTab();
+        RefreshExpensesTab();
     }
 
     private void RemoveExpenseTypeClicked(object? sender, EventArgs e)
     {
-        // TODO: remove selected expense category (with safety checks) and update dropdowns
-        ShowNotImplemented("Remove Expense Category");
+        if (lbExpenseTypes.SelectedItem is not string name) return;
+
+        var ok = _ledgerService.RemoveCategory(name);
+        if (!ok)
+        {
+            MessageBox.Show("Failed to remove category.", "Simple Budget");
+            return;
+        }
+
+        RefreshSettingsTab();
+        RefreshExpensesTab();
     }
 
     #endregion
@@ -220,6 +292,8 @@ public partial class MainForm : Form
             panel2Min: 200,
             panel1Target: 330
         );
+
+        RefreshCurrentTab();
     }
 
     #endregion
@@ -243,6 +317,126 @@ public partial class MainForm : Form
         sc.IsSplitterFixed = false;
         sc.SplitterWidth = 6;
     }
+
+    private void TabMain_SelectedIndexChanged(object? sender, EventArgs e) =>
+        RefreshCurrentTab();
+
+    private void RefreshCurrentTab()
+    {
+
+        if (tabMain.SelectedTab == tabDashboard)
+        {
+            RefreshDashboardTab();
+            return;
+        }
+
+        if (tabMain.SelectedTab == tabIncome)
+        {
+            RefreshIncomeTab();
+            return;
+        }
+
+        if (tabMain.SelectedTab == tabExpenses)
+        {
+            RefreshExpensesTab();
+            return;
+        }
+
+        if (tabMain.SelectedTab == tabReports)
+        {
+            RefreshReportsTab();
+            return;
+        }
+
+        if (tabMain.SelectedTab == tabSettings)
+        {
+            RefreshSettingsTab();
+            return;
+        }
+    }
+
+    private void RefreshIncomeTab()
+    {
+        var categories = _ledgerService.GetCategories(LedgerEntryType.Income);
+
+        cbIncomeCategory.BeginUpdate();
+        try
+        {
+            var selected = cbIncomeCategory.SelectedItem as string;
+
+            cbIncomeCategory.DataSource = null;
+            cbIncomeCategory.Items.Clear();
+            cbIncomeCategory.DataSource = categories;
+
+            if (!string.IsNullOrWhiteSpace(selected) && categories.Contains(selected))
+                cbIncomeCategory.SelectedItem = selected;
+            else if (categories.Count > 0)
+                cbIncomeCategory.SelectedIndex = 0;
+            else
+                cbIncomeCategory.SelectedIndex = -1;
+        }
+        finally
+        {
+            cbIncomeCategory.EndUpdate();
+        }
+
+        // TODO refresh dgvIncome
+    }
+
+    private void RefreshExpensesTab()
+    {
+        var categories = _ledgerService.GetCategories(LedgerEntryType.Expense);
+
+        cbExpenseCategory.BeginUpdate();
+        try
+        {
+            var selected = cbExpenseCategory.SelectedItem as string;
+
+            cbExpenseCategory.DataSource = null;
+            cbExpenseCategory.Items.Clear();
+            cbExpenseCategory.DataSource = categories;
+
+            if (!string.IsNullOrWhiteSpace(selected) && categories.Contains(selected))
+                cbExpenseCategory.SelectedItem = selected;
+            else if (categories.Count > 0)
+                cbExpenseCategory.SelectedIndex = 0;
+            else
+                cbExpenseCategory.SelectedIndex = -1;
+        }
+        finally
+        {
+            cbExpenseCategory.EndUpdate();
+        }
+
+        // TODO refresh dgvExpenses
+    }
+
+    private void RefreshSettingsTab()
+    {
+        var income = _ledgerService.GetCategories(LedgerEntryType.Income);
+        var expense = _ledgerService.GetCategories(LedgerEntryType.Expense);
+
+        lbIncomeTypes.BeginUpdate();
+        lbExpenseTypes.BeginUpdate();
+        try
+        {
+            lbIncomeTypes.Items.Clear();
+            lbExpenseTypes.Items.Clear();
+
+            foreach (var name in income) lbIncomeTypes.Items.Add(name);
+            foreach (var name in expense) lbExpenseTypes.Items.Add(name);
+        }
+        finally
+        {
+            lbIncomeTypes.EndUpdate();
+            lbExpenseTypes.EndUpdate();
+        }
+
+        // TODO load savings percent etc.
+    }
+
+    private static void RefreshDashboardTab() { /* TODO */ }
+    private static void RefreshReportsTab() { /* TODO */ }
 
     #endregion
 
