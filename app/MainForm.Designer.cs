@@ -183,8 +183,6 @@ partial class MainForm
 
     private Panel pnlSettingsActions;
     private FlowLayoutPanel flpSettingsActions;
-    private Button btnSettingsSave;
-    private Button btnSettingsResetDefaults;
 
     #endregion
 
@@ -382,8 +380,6 @@ partial class MainForm
 
         pnlSettingsActions = new Panel();
         flpSettingsActions = new FlowLayoutPanel();
-        btnSettingsSave = new Button();
-        btnSettingsResetDefaults = new Button();
 
         #endregion
 
@@ -496,8 +492,7 @@ partial class MainForm
             "View scope:\n" +
             "• Week = week containing the anchor date\n" +
             "• Month = month of the anchor date\n" +
-            "• Year = calendar year of the anchor date\n\n" +
-            "TODO: update dashboard calculations");
+            "• Year = calendar year of the anchor date\n\n");
 
         lblDashMonth.AutoSize = true;
         lblDashMonth.Text = "Anchor date:";
@@ -538,25 +533,25 @@ partial class MainForm
         lblIncomeTotalTitle.Text = "Total Income";
         lblIncomeTotalValue.AutoSize = true;
         lblIncomeTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblIncomeTotalValue.Text = "$0.00";
+        lblIncomeTotalValue.Text = "-";
 
         lblExpenseTotalTitle.AutoSize = true;
         lblExpenseTotalTitle.Text = "Total Expenses";
         lblExpenseTotalValue.AutoSize = true;
         lblExpenseTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblExpenseTotalValue.Text = "$0.00";
+        lblExpenseTotalValue.Text = "-";
 
         lblSavingsTotalTitle.AutoSize = true;
         lblSavingsTotalTitle.Text = "Savings";
         lblSavingsTotalValue.AutoSize = true;
         lblSavingsTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblSavingsTotalValue.Text = "$0.00";
+        lblSavingsTotalValue.Text = "-";
 
         lblNetTotalTitle.AutoSize = true;
         lblNetTotalTitle.Text = "Net";
         lblNetTotalValue.AutoSize = true;
         lblNetTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblNetTotalValue.Text = "$0.00";
+        lblNetTotalValue.Text = "-";
 
         tlpDashTotals.Controls.Add(lblIncomeTotalTitle, 0, 0);
         tlpDashTotals.Controls.Add(lblIncomeTotalValue, 1, 0);
@@ -629,7 +624,6 @@ partial class MainForm
 
         cbIncomeCategory.Dock = DockStyle.Fill;
         cbIncomeCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbIncomeCategory.Items.AddRange(new object[] { "Salary", "Bonus", "Other" }); //TODO Move to AppConfig
         StyleComboBox(cbIncomeCategory);
 
         lblIncomeAmount.Text = "Amount:";
@@ -656,7 +650,7 @@ partial class MainForm
         lblIncomeFrequency.AutoSize = true;
 
         cbIncomeFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbIncomeFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" }); //TODO Getting from enum
+        cbIncomeFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" });
         cbIncomeFrequency.Enabled = false;
         cbIncomeFrequency.Width = 150;
         StyleComboBox(cbIncomeFrequency);
@@ -769,7 +763,6 @@ partial class MainForm
         btnIncomeDeleteSelected.Text = "Delete Selected";
         btnIncomeDeleteSelected.Width = 160;
         StyleButton(btnIncomeDeleteSelected);
-        toolTip.SetToolTip(btnIncomeDeleteSelected, "UI placeholder.\nLater: delete the selected income row.");
 
         flpIncomeListActions.Controls.Add(btnIncomeDeleteSelected);
         pnlIncomeListActions.Controls.Add(flpIncomeListActions);
@@ -823,7 +816,6 @@ partial class MainForm
 
         cbExpenseCategory.Dock = DockStyle.Fill;
         cbExpenseCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbExpenseCategory.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" }); //TODO Move to AppConfig
         StyleComboBox(cbExpenseCategory);
 
         lblExpenseAmount.Text = "Amount:";
@@ -850,7 +842,7 @@ partial class MainForm
         lblExpenseFrequency.AutoSize = true;
 
         cbExpenseFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbExpenseFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" }); //TODO Getting from enum
+        cbExpenseFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" });
         cbExpenseFrequency.Enabled = false;
         cbExpenseFrequency.Width = 150;
         StyleComboBox(cbExpenseFrequency);
@@ -962,7 +954,6 @@ partial class MainForm
         btnExpenseDeleteSelected.Text = "Delete Selected";
         btnExpenseDeleteSelected.Width = 160;
         StyleButton(btnExpenseDeleteSelected);
-        toolTip.SetToolTip(btnExpenseDeleteSelected, "UI placeholder.\nLater: delete the selected expense row.");
 
         flpExpenseListActions.Controls.Add(btnExpenseDeleteSelected);
         pnlExpenseListActions.Controls.Add(flpExpenseListActions);
@@ -1207,7 +1198,6 @@ partial class MainForm
         tlpIncomeTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
 
         lbIncomeTypes.Dock = DockStyle.Fill;
-        lbIncomeTypes.Items.AddRange(new object[] { "Salary", "Bonus", "Other" }); //TODO Move to AppSettings
         StyleListBox(lbIncomeTypes);
 
         var pnlIncomeAddRow = new TableLayoutPanel
@@ -1267,7 +1257,6 @@ partial class MainForm
         tlpExpenseTypes.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
 
         lbExpenseTypes.Dock = DockStyle.Fill;
-        lbExpenseTypes.Items.AddRange(new object[] { "Rent", "Groceries", "Utilities", "Other" }); //TODO Move to AppSettings
         StyleListBox(lbExpenseTypes);
 
         var pnlExpenseAddRow = new TableLayoutPanel
@@ -1359,18 +1348,6 @@ partial class MainForm
         flpSettingsActions.WrapContents = false;
         flpSettingsActions.Padding = new Padding(12, 14, 12, 12);
 
-        btnSettingsSave.Text = "Save";
-        btnSettingsSave.Width = 140;
-        btnSettingsSave.Click += SettingsSaveClicked;
-        StyleButton(btnSettingsSave);
-
-        btnSettingsResetDefaults.Text = "Reset to Defaults";
-        btnSettingsResetDefaults.Width = 180;
-        btnSettingsResetDefaults.Click += SettingsResetDefaultsClicked;
-        StyleButton(btnSettingsResetDefaults);
-
-        flpSettingsActions.Controls.Add(btnSettingsSave);
-        flpSettingsActions.Controls.Add(btnSettingsResetDefaults);
         pnlSettingsActions.Controls.Add(flpSettingsActions);
 
         // Layout adds

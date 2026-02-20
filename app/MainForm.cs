@@ -174,18 +174,6 @@ public partial class MainForm : Form
         ShowNotImplemented("Remove Expense Category");
     }
 
-    private void SettingsSaveClicked(object? sender, EventArgs e)
-    {
-        // TODO: persist settings/categories and refresh all category dropdowns
-        ShowNotImplemented("Save Settings");
-    }
-
-    private void SettingsResetDefaultsClicked(object? sender, EventArgs e)
-    {
-        // TODO: reset categories/settings to defaults
-        ShowNotImplemented("Reset Defaults");
-    }
-
     #endregion
 
     #region Tabs Rendering
