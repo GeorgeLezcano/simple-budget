@@ -11,6 +11,8 @@ public partial class MainForm : Form
 
     private readonly SettingsService _settingsService;
 
+    private decimal _lastSavedSavingsPercent = -1m;
+
     #region Constructor
 
     /// <summary>
@@ -57,13 +59,25 @@ public partial class MainForm : Form
     private void LanguageEnglishClicked(object? sender, EventArgs e)
     {
         LabelFormatter.SelectedLanguage = Language.ENGLISH;
-        //TODO RefreshAppLabels()
+        
+        //TODO Save in db settings
+
+        menuLanguageEnglish.Checked = true;
+        menuLanguageSpanish.Checked = false;
+
+        ApplyLanguageAndRefresh();
     }
 
     private void LanguageSpanishClicked(object? sender, EventArgs e)
     {
         LabelFormatter.SelectedLanguage = Language.SPANISH;
-        //TODO RefreshAppLabels()
+
+        //TODO Save in db settings
+
+        menuLanguageEnglish.Checked = false;
+        menuLanguageSpanish.Checked = true;
+
+        ApplyLanguageAndRefresh();
         ShowNotImplemented("Language: Spanish");
     }
 
@@ -246,31 +260,27 @@ public partial class MainForm : Form
         RefreshExpensesTab();
     }
 
-    #endregion
-
-    #region Tabs Rendering
-
-    private void TabMain_DrawItem(object? sender, DrawItemEventArgs e)
+    private void SavingsSaveClicked(object? sender, EventArgs e)
     {
-        if (sender is not TabControl tc) return;
+        var value = nudSavingsPercent.Value;
 
-        var page = tc.TabPages[e.Index];
-        var isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+        if (value == _lastSavedSavingsPercent)
+            return;
 
-        var r = e.Bounds;
+        var setting = new AppSetting
+        {
+            Setting = AppConfig.SavingsPercentage,
+            Value = value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        };
 
-        var bg = isSelected ? AppConfig.ThemeTabActive : AppConfig.ThemeTabInactive;
-        var fg = isSelected ? Color.White : AppConfig.ThemeText;
+        var ok = _settingsService.Set(setting);
+        if (!ok)
+        {
+            MessageBox.Show("Failed to save Savings %.", "Simple Budget");
+            return;
+        }
 
-        using var backBrush = new SolidBrush(bg);
-        using var textBrush = new SolidBrush(fg);
-        using var pen = new Pen(AppConfig.ThemeBorder);
-
-        e.Graphics.FillRectangle(backBrush, r);
-        e.Graphics.DrawRectangle(pen, r);
-
-        var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        e.Graphics.DrawString(page.Text, Font, textBrush, r, sf);
+        _lastSavedSavingsPercent = value;
     }
 
     #endregion
@@ -298,7 +308,30 @@ public partial class MainForm : Form
 
     #endregion
 
-    #region Layout Helpers
+    #region UI Helpers
+
+    private void TabMain_DrawItem(object? sender, DrawItemEventArgs e)
+    {
+        if (sender is not TabControl tc) return;
+
+        var page = tc.TabPages[e.Index];
+        var isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+        var r = e.Bounds;
+
+        var bg = isSelected ? AppConfig.ThemeTabActive : AppConfig.ThemeTabInactive;
+        var fg = isSelected ? Color.White : AppConfig.ThemeText;
+
+        using var backBrush = new SolidBrush(bg);
+        using var textBrush = new SolidBrush(fg);
+        using var pen = new Pen(AppConfig.ThemeBorder);
+
+        e.Graphics.FillRectangle(backBrush, r);
+        e.Graphics.DrawRectangle(pen, r);
+
+        var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+        e.Graphics.DrawString(page.Text, Font, textBrush, r, sf);
+    }
 
     private static void ConfigureSplitSafe(SplitContainer sc, int panel1Min, int panel2Min, int panel1Target)
     {
@@ -432,11 +465,53 @@ public partial class MainForm : Form
             lbExpenseTypes.EndUpdate();
         }
 
-        // TODO load savings percent etc.
+        if (_settingsService.TryGetValue(AppConfig.SavingsPercentage, out var saved))
+        {
+            if (decimal.TryParse(saved,
+                    System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out var parsed))
+            {
+                if (parsed < nudSavingsPercent.Minimum) parsed = nudSavingsPercent.Minimum;
+                if (parsed > nudSavingsPercent.Maximum) parsed = nudSavingsPercent.Maximum;
+
+                nudSavingsPercent.Value = parsed;
+                _lastSavedSavingsPercent = parsed;
+            }
+            else
+            {
+                nudSavingsPercent.Value = 0;
+                _lastSavedSavingsPercent = 0;
+            }
+        }
+        else
+        {
+            nudSavingsPercent.Value = 0;
+            _lastSavedSavingsPercent = 0;
+        }
     }
 
     private static void RefreshDashboardTab() { /* TODO */ }
     private static void RefreshReportsTab() { /* TODO */ }
+
+    private void ApplyLanguageAndRefresh()
+    {
+        Language language = LabelFormatter.SelectedLanguage;
+
+        switch (language)
+        {
+            case Language.ENGLISH:
+                //TODO Apply English labels texts
+                break;
+
+            case Language.SPANISH:
+                //TODO Apply Spanish labels texts
+                break;
+        }
+
+        RefreshCurrentTab();
+        tabMain.Invalidate();
+    }
 
     #endregion
 

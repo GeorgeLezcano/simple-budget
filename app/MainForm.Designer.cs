@@ -184,6 +184,8 @@ partial class MainForm
     private Panel pnlSettingsActions;
     private FlowLayoutPanel flpSettingsActions;
 
+    private Button btnSavingsSave;
+
     #endregion
 
     #region Dispose
@@ -381,6 +383,8 @@ partial class MainForm
         pnlSettingsActions = new Panel();
         flpSettingsActions = new FlowLayoutPanel();
 
+        btnSavingsSave = new Button();
+
         #endregion
 
         #region SuspendLayout
@@ -409,8 +413,13 @@ partial class MainForm
 
         menuLanguage.Text = "&Language";
         menuLanguageEnglish.Text = "&English";
+        menuLanguageEnglish.CheckOnClick = true;
+        menuLanguageEnglish.Checked = true;
         menuLanguageEnglish.Click += LanguageEnglishClicked;
+
         menuLanguageSpanish.Text = "&Español";
+        menuLanguageSpanish.CheckOnClick = true;
+        menuLanguageSpanish.Checked = false;
         menuLanguageSpanish.Click += LanguageSpanishClicked;
         menuLanguage.DropDownItems.Add(menuLanguageEnglish);
         menuLanguage.DropDownItems.Add(menuLanguageSpanish);
@@ -1313,31 +1322,51 @@ partial class MainForm
         gbSavingsSettings.Text = "Savings";
         StyleGroupBox(gbSavingsSettings);
 
+        gbSavingsSettings.Dock = DockStyle.Fill;
+        gbSavingsSettings.Text = "Savings";
+        StyleGroupBox(gbSavingsSettings);
+
         tlpSavingsSettings.Dock = DockStyle.Fill;
         tlpSavingsSettings.Padding = new Padding(12);
-        tlpSavingsSettings.ColumnCount = 2;
+        tlpSavingsSettings.ColumnCount = 3;
+        tlpSavingsSettings.RowCount = 1;
 
-        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        tlpSavingsSettings.ColumnStyles.Clear();
+        tlpSavingsSettings.RowStyles.Clear();
 
-        tlpSavingsSettings.RowCount = 2;
-        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120)); // label
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120)); // numeric
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));      // button
+
+        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
 
         lblSavingsPercent.Text = "Savings %:";
         lblSavingsPercent.TextAlign = ContentAlignment.MiddleLeft;
         lblSavingsPercent.Dock = DockStyle.Fill;
 
-        nudSavingsPercent.Dock = DockStyle.Left;
-        nudSavingsPercent.Margin = new Padding(0, 6, 0, 0);
-        nudSavingsPercent.Width = 120;
+        // Numeric
         nudSavingsPercent.DecimalPlaces = 1;
         nudSavingsPercent.Minimum = 0;
         nudSavingsPercent.Maximum = 100;
+        nudSavingsPercent.Width = 120;
+        nudSavingsPercent.Height = 32;
+        nudSavingsPercent.Dock = DockStyle.None;
+        nudSavingsPercent.Anchor = AnchorStyles.Left;
+        nudSavingsPercent.Margin = new Padding(0);
         StyleNumeric(nudSavingsPercent);
+
+        // Button
+        btnSavingsSave.Text = "Save";
+        btnSavingsSave.Width = 120;
+        btnSavingsSave.Dock = DockStyle.None;
+        btnSavingsSave.Anchor = AnchorStyles.Left;
+        btnSavingsSave.Margin = new Padding(8, 0, 0, 0);
+        btnSavingsSave.Click += SavingsSaveClicked;
+        StyleButton(btnSavingsSave);
 
         tlpSavingsSettings.Controls.Add(lblSavingsPercent, 0, 0);
         tlpSavingsSettings.Controls.Add(nudSavingsPercent, 1, 0);
+        tlpSavingsSettings.Controls.Add(btnSavingsSave, 2, 0);
 
         gbSavingsSettings.Controls.Add(tlpSavingsSettings);
 

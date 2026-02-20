@@ -53,9 +53,9 @@ public class SettingsService(DbContextProvider db)
     /// <summary>
     /// Retrives the value of the provided setting
     /// </summary>
-    /// <param name="Key">The settings Key in the database</param>
+    /// <param name="key">The settings Key in the database</param>
     /// <returns>The settings value</returns>
-    public bool TryGetValue(string Key, out string value)
+    public bool TryGetValue(string key, out string value)
     {
         value = string.Empty;
 
@@ -63,11 +63,10 @@ public class SettingsService(DbContextProvider db)
         {
             using var context = _db.CreateContext();
 
-            var entity = context.AppSettings.Find(Key);
+            var entity = context.AppSettings.Find(key);
+            if (entity is null) return false;
 
-            if (entity is not null)
-                value = entity.Value;
-
+            value = entity.Value;
             return true;
         }
         catch (Exception)
