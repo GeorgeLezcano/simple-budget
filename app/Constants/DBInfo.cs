@@ -24,4 +24,9 @@ public static class DBInfo
     /// Name of the table for the transactions.
     /// </summary>
     public const string LedgerTable = "ledger_entries";
+
+    /// <summary>
+    /// Name of the table for the categories.
+    /// </summary>
+    public const string TransactionCategoryTable = "categories";
 }

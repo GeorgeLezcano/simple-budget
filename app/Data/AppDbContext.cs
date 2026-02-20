@@ -20,6 +20,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     /// </summary>
     public DbSet<LedgerEntry> LedgerEntries => Set<LedgerEntry>();
 
+    /// <summary>
+    /// Categories table.
+    /// </summary>
+    public DbSet<TransactionCategory> Categories => Set<TransactionCategory>();
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +49,13 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             b.Property(x => x.Notes);
             b.Property(x => x.Recurring);
             b.Property(x => x.Frequency);
+        });
+
+        modelBuilder.Entity<TransactionCategory> (b =>
+        {
+         b.ToTable(DBInfo.TransactionCategoryTable);
+         b.HasKey(x => x.Name);
+         b.Property(x => x.Type);
         });
     }
 }

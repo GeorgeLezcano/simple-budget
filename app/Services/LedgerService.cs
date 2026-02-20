@@ -1,4 +1,6 @@
+using App.Constants;
 using App.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.Services;
 
@@ -16,7 +18,7 @@ public sealed class LedgerService(DbContextProvider db)
     /// </summary>
     /// <param name="entry">The ledger entry</param>
     /// <returns>True if the request is successful; False otherwise.</returns>
-    public bool TryAddLedgerEntry(LedgerEntry entry)
+    public bool AddLedgerEntry(LedgerEntry entry)
     {
         try
         {
@@ -38,7 +40,7 @@ public sealed class LedgerService(DbContextProvider db)
     /// </summary>
     /// <param name="id">The id of the entry</param>
     /// <returns>True if the request is successful; False otherwise.</returns>
-    public bool TryRemoveLedgerEntry(Guid id)
+    public bool RemoveLedgerEntry(Guid id)
     {
         try
         {
@@ -55,6 +57,23 @@ public sealed class LedgerService(DbContextProvider db)
         {
             return false;
         }
+    }
+    
+    /// <summary>
+    /// Get all the categories of the provided type.
+    /// See <see cref="LedgerEntryType"/> for more details.
+    /// </summary>
+    /// <param name="type">The type of category</param>
+    /// <returns>A list of strings containing all categories.</returns>
+    public List<string> GetCategories(LedgerEntryType type)
+    {
+        using var context = _db.CreateContext();
+
+        return [.. context.Categories
+            .AsNoTracking()
+            .Where(c => c.Type == (int)type)
+            .OrderBy(c => c.Name)
+            .Select(c => c.Name)];
     }
 
 }

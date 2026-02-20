@@ -35,4 +35,12 @@ public static class AppConfig
     public static readonly Color ThemeTabHoverInactive = Color.FromArgb(70, 70, 74);
 
     #endregion
+
+    #region Settings DB Keys
+
+    public const string SavingsPercentage = "SavingsPercentage";
+
+    public const string LanguagePreference = "LanguagePreference";
+
+    #endregion
 }

@@ -23,6 +23,7 @@ namespace App.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Setting");
@@ -32,7 +33,8 @@ namespace App.Data.Migrations
 
             modelBuilder.Entity("App.Data.Entities.LedgerEntry", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Amount")
@@ -62,6 +64,19 @@ namespace App.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ledger_entries", (string)null);
+                });
+
+            modelBuilder.Entity("App.Data.Entities.TransactionCategory", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("categories", (string)null);
                 });
 #pragma warning restore 612, 618
         }

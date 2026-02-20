@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using App.Constants;
 
 namespace App.Data.Entities;
@@ -11,6 +12,7 @@ public class LedgerEntry
     /// <summary>
     /// Unique identifider of the entry.
     /// </summary>
+    [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
@@ -23,6 +25,7 @@ public class LedgerEntry
     /// Category list will be populated based on type in the dropdown.
     /// Examples can be "Rent, Salary"/
     /// </summary>
+    [Required]
     public string Category { get; set; } = string.Empty;
 
     /// <summary>
