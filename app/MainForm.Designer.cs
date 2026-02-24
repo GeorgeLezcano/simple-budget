@@ -412,17 +412,23 @@ partial class MainForm
         menuMain.RenderMode = ToolStripRenderMode.System;
 
         menuLanguage.Text = "&Language";
+
+        menuLanguage.Name = nameof(menuLanguage);
         menuLanguageEnglish.Text = "&English";
         menuLanguageEnglish.CheckOnClick = true;
         menuLanguageEnglish.Checked = true;
         menuLanguageEnglish.Click += LanguageEnglishClicked;
+        menuLanguageEnglish.Name = nameof(menuLanguageEnglish);
 
         menuLanguageSpanish.Text = "&Español";
         menuLanguageSpanish.CheckOnClick = true;
         menuLanguageSpanish.Checked = false;
         menuLanguageSpanish.Click += LanguageSpanishClicked;
+        menuLanguageSpanish.Name = nameof(menuLanguageSpanish);
+
         menuLanguage.DropDownItems.Add(menuLanguageEnglish);
         menuLanguage.DropDownItems.Add(menuLanguageSpanish);
+        
 
         menuHelp.Text = "&Help";
         menuHelpDocs.Text = "&Documentation";
@@ -575,16 +581,14 @@ partial class MainForm
 
         gbDashNextSteps.Dock = DockStyle.Fill;
         gbDashNextSteps.Text = "Next steps";
+        gbDashNextSteps.Name = nameof(gbDashNextSteps);
         StyleGroupBox(gbDashNextSteps);
 
         lblDashHint.Dock = DockStyle.Fill;
         lblDashHint.ForeColor = AppConfig.ThemeMuted;
-        lblDashHint.Text =
-            "• Use Income to add money coming in.\n" +
-            "• Use Expenses to log spending (recurring or one-time).\n" +
-            "• Use Reports to filter/export.\n" +
-            "• Use Settings to manage categories (Rent, Groceries, etc.).";
+        lblDashHint.Text ="";
         lblDashHint.Padding = new Padding(12);
+        lblDashHint.Name = nameof(lblDashHint);
 
         gbDashNextSteps.Controls.Add(lblDashHint);
 

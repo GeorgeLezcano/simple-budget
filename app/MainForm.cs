@@ -59,11 +59,19 @@ public partial class MainForm : Form
     private void LanguageEnglishClicked(object? sender, EventArgs e)
     {
         LabelFormatter.SelectedLanguage = Language.ENGLISH;
-        
-        //TODO Save in db settings
 
-        menuLanguageEnglish.Checked = true;
-        menuLanguageSpanish.Checked = false;
+        var setting = new AppSetting
+        {
+            Setting = AppConfig.LanguagePreference,
+            Value = $"{(int)Language.ENGLISH}"
+        };
+
+        var ok = _settingsService.Set(setting);
+        if (!ok)
+        {
+            MessageBox.Show("Failed to save language preference.", "Simple Budget");
+            return;
+        }
 
         ApplyLanguageAndRefresh();
     }
@@ -72,13 +80,20 @@ public partial class MainForm : Form
     {
         LabelFormatter.SelectedLanguage = Language.SPANISH;
 
-        //TODO Save in db settings
+        var setting = new AppSetting
+        {
+            Setting = AppConfig.LanguagePreference,
+            Value = $"{(int)Language.SPANISH}"
+        };
 
-        menuLanguageEnglish.Checked = false;
-        menuLanguageSpanish.Checked = true;
+        var ok = _settingsService.Set(setting);
+        if (!ok)
+        {
+            MessageBox.Show("Failed to save language preference.", "Simple Budget");
+            return;
+        }
 
         ApplyLanguageAndRefresh();
-        ShowNotImplemented("Language: Spanish");
     }
 
     #endregion
@@ -303,7 +318,21 @@ public partial class MainForm : Form
             panel1Target: 330
         );
 
-        RefreshCurrentTab();
+        if (_settingsService.TryGetValue(AppConfig.LanguagePreference, out string saved) &&
+            int.TryParse(saved, out var language))
+        {
+            LabelFormatter.SelectedLanguage = language switch
+            {
+                (int)Language.SPANISH => Language.SPANISH,
+                _ => Language.ENGLISH
+            };
+        }
+        else
+        {
+            LabelFormatter.SelectedLanguage = Language.ENGLISH;
+        }
+
+        ApplyLanguageAndRefresh();
     }
 
     #endregion
@@ -496,18 +525,7 @@ public partial class MainForm : Form
 
     private void ApplyLanguageAndRefresh()
     {
-        Language language = LabelFormatter.SelectedLanguage;
-
-        switch (language)
-        {
-            case Language.ENGLISH:
-                //TODO Apply English labels texts
-                break;
-
-            case Language.SPANISH:
-                //TODO Apply Spanish labels texts
-                break;
-        }
+        LabelFormatter.Apply(this, menuMain);
 
         RefreshCurrentTab();
         tabMain.Invalidate();
