@@ -1,4 +1,4 @@
-# <img src="app/Resources/app_default.ico" alt="AutoInput Icon" width="24" height="24" style="vertical-align: middle; margin-right: 6px;"> Simple Budge
+# <img src="app/Resources/app_default.ico" alt="AutoInput Icon" width="24" height="24" style="vertical-align: middle; margin-right: 6px;"> Simple Budget
 
 Simple Budget is a lightweight Windows desktop app for tracking **income**, **expenses**, and basic **budget summaries** — with a clean, dark-themed UI and a simple workflow.
 
