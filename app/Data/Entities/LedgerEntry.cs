@@ -50,8 +50,7 @@ public class LedgerEntry
 
     /// <summary>
     /// If <see cref="Recurring"/> is true, this will be populated with
-    /// the frequency type from the enum <see cref="TransactionFrequency"/> 
-    /// for enum details.
+    /// the frequency type using the index from <see cref="AppConfig.TransactionFrequency"/>
     /// </summary>
     public int? Frequency { get; set; } = null;
 }

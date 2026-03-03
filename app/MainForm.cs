@@ -56,6 +56,11 @@ public partial class MainForm : Form
         MessageBox.Show($"Simple Budget\nVersion {XmlHelpers.GetAppVersion()}\n\nA simple income/expense tracker.", "About");
     }
 
+    /// <summary>
+    /// Applies english to all applicable labels.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void LanguageEnglishClicked(object? sender, EventArgs e)
     {
         LabelFormatter.SelectedLanguage = Language.ENGLISH;
@@ -76,6 +81,11 @@ public partial class MainForm : Form
         ApplyLanguageAndRefresh();
     }
 
+    /// <summary>
+    /// Applies Spanish to all applicable labels.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void LanguageSpanishClicked(object? sender, EventArgs e)
     {
         LabelFormatter.SelectedLanguage = Language.SPANISH;
@@ -110,24 +120,75 @@ public partial class MainForm : Form
 
     #region Income
 
+    /// <summary>
+    /// Enables/Disables frequency selctor dropdown.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void IncomeRecurringChanged(object? sender, EventArgs e)
     {
-        // TODO: enable/disable frequency selector based on recurring checkbox
         cbIncomeFrequency.Enabled = chkIncomeRecurring.Checked;
     }
 
+    /// <summary>
+    /// Adds a new income entry to the database.
+    /// Tab gets refreshed and inputs return to 
+    /// default values.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void IncomeAddClicked(object? sender, EventArgs e)
     {
-        // TODO: validate fields, insert income record into SQLite, refresh grid + totals
-        ShowNotImplemented("Add Income");
+        // // TODO Validate fields
+
+        // int? frequency = chkIncomeRecurring.Checked == true 
+        //     && cbIncomeFrequency.SelectedIndex != -1
+        //     ? cbIncomeFrequency.SelectedIndex
+        //     : null;
+
+        // LedgerEntry entry = new()
+        // {
+        //     Type = (int)LedgerEntryType.Income,
+        //     Category = cbIncomeCategory.Text,
+        //     Amount = nudIncomeAmount.Value,
+        //     Notes = txtIncomeNotes.Text,
+        //     Recurring = chkIncomeRecurring.Checked,
+        //     Frequency = frequency
+        // };
+
+        // bool ok = _ledgerService.AddLedgerEntry(entry);
+
+        // if (!ok)
+        // {
+        //     MessageBox.Show("Failed to add income.", "Simple Budget");
+        //     return;
+        // }
+
+        // //TODO Add to Income list grid, maybe RefreshCurrentTab() as well ??
+
+        // IncomeClearClicked(sender, e);
     }
 
+    /// <summary>
+    /// Clears all the income inputs and reset them to their defaults.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void IncomeClearClicked(object? sender, EventArgs e)
     {
-        // TODO: clear income entry fields (and maybe reset to defaults)
-        ShowNotImplemented("Clear Income Entry");
+        ClearComboSelection(cbIncomeCategory);
+        nudIncomeAmount.Value = 0;
+        dtpIncomeDate.Value = DateTime.Now;
+        chkIncomeRecurring.Checked = false;
+        cbIncomeFrequency.SelectedIndex = -1;
+        txtIncomeNotes.Text = string.Empty;
     }
 
+    /// <summary>
+    /// Deletes the selected income entry from the database.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void IncomeDeleteSelectedClicked(object? sender, EventArgs e)
     {
         // TODO: Delete the entry from the database
@@ -139,24 +200,75 @@ public partial class MainForm : Form
 
     #region Expenses
 
+    /// <summary>
+    /// Enables/Disables frequency selctor dropdown.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ExpenseRecurringChanged(object? sender, EventArgs e)
     {
-        // TODO: enable/disable frequency selector based on recurring checkbox
         cbExpenseFrequency.Enabled = chkExpenseRecurring.Checked;
     }
 
+    /// <summary>
+    /// Adds a new expense entry to the database.
+    /// Tab gets refreshed and inputs return to 
+    /// default values.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ExpenseAddClicked(object? sender, EventArgs e)
     {
-        // TODO: validate fields, insert expense record into SQLite, refresh grid + totals
-        ShowNotImplemented("Add Expense");
+        // // TODO Validate fields
+
+        // int? frequency = chkExpenseRecurring.Checked == true
+        //     && cbExpenseFrequency.SelectedIndex != -1
+        //     ? cbExpenseFrequency.SelectedIndex
+        //     : null;
+
+        // LedgerEntry entry = new()
+        // {
+        //     Type = (int)LedgerEntryType.Expense,
+        //     Category = cbExpenseCategory.Text,
+        //     Amount = nudExpenseAmount.Value,
+        //     Notes = txtExpenseNotes.Text,
+        //     Recurring = chkExpenseRecurring.Checked,
+        //     Frequency = frequency
+        // };
+
+        // bool ok = _ledgerService.AddLedgerEntry(entry);
+
+        // if (!ok)
+        // {
+        //     MessageBox.Show("Failed to add expense.", "Simple Budget");
+        //     return;
+        // }
+
+        // //TODO Add to Income list grid, maybe RefreshCurrentTab() as well ??
+
+        // ExpenseClearClicked(sender, e);
     }
 
+    /// <summary>
+    /// Clears all the income inputs and reset them to their defaults.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ExpenseClearClicked(object? sender, EventArgs e)
     {
-        // TODO: clear expense entry fields
-        ShowNotImplemented("Clear Expense Entry");
+        ClearComboSelection(cbExpenseCategory);
+        nudExpenseAmount.Value = 0;
+        dtpExpenseDate.Value = DateTime.Now;
+        chkExpenseRecurring.Checked = false;
+        cbExpenseFrequency.SelectedIndex = -1;
+        txtExpenseNotes.Text = string.Empty;
     }
 
+    /// <summary>
+    /// Deletes the selected expense entry from the database.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ExpenseDeleteSelectedClicked(object? sender, EventArgs e)
     {
         // TODO: Delete the entry from the database
@@ -432,8 +544,6 @@ public partial class MainForm : Form
 
             if (!string.IsNullOrWhiteSpace(selected) && categories.Contains(selected))
                 cbIncomeCategory.SelectedItem = selected;
-            else if (categories.Count > 0)
-                cbIncomeCategory.SelectedIndex = 0;
             else
                 cbIncomeCategory.SelectedIndex = -1;
         }
@@ -460,8 +570,6 @@ public partial class MainForm : Form
 
             if (!string.IsNullOrWhiteSpace(selected) && categories.Contains(selected))
                 cbExpenseCategory.SelectedItem = selected;
-            else if (categories.Count > 0)
-                cbExpenseCategory.SelectedIndex = 0;
             else
                 cbExpenseCategory.SelectedIndex = -1;
         }
@@ -529,6 +637,18 @@ public partial class MainForm : Form
 
         RefreshCurrentTab();
         tabMain.Invalidate();
+    }
+
+    /// <summary>
+    /// Clears the combo box selection to use -1 index.
+    /// </summary>
+    /// <param name="cb">The combo box</param>
+    private static void ClearComboSelection(ComboBox cb)
+    {
+        cb.SelectedItem = null;
+        cb.Text = string.Empty;
+        if (cb.SelectedIndex != -1)
+            cb.SelectedIndex = -1;
     }
 
     #endregion

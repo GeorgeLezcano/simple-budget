@@ -663,7 +663,7 @@ partial class MainForm
         lblIncomeFrequency.AutoSize = true;
 
         cbIncomeFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbIncomeFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" });
+        cbIncomeFrequency.Items.AddRange(AppConfig.TransactionFrequency);
         cbIncomeFrequency.Enabled = false;
         cbIncomeFrequency.Width = 150;
         StyleComboBox(cbIncomeFrequency);
@@ -856,7 +856,7 @@ partial class MainForm
         lblExpenseFrequency.AutoSize = true;
 
         cbExpenseFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbExpenseFrequency.Items.AddRange(new object[] { "Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly" });
+        cbExpenseFrequency.Items.AddRange(AppConfig.TransactionFrequency);
         cbExpenseFrequency.Enabled = false;
         cbExpenseFrequency.Width = 150;
         StyleComboBox(cbExpenseFrequency);

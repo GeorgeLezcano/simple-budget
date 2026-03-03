@@ -11,6 +11,8 @@ public static class AppConfig
     public const string IconName = "$this.Icon";
     public const Language DefaultLanguage = Language.ENGLISH;
 
+    public static readonly string[] TransactionFrequency = ["Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly"];
+
     #endregion
 
     #region UI Theme
