@@ -26,7 +26,17 @@ public partial class MainForm : Form
     )
     {
         InitializeComponent();
+
+        LedgerGridHeaderFormatter.Register(dgvIncome);
+        LedgerGridHeaderFormatter.Register(dgvExpenses);
+
+        LabelFormatter.EnsureNamesFromFields(this, menuMain);
+
+        dgvIncome.CellFormatting += LedgerGrid_CellFormatting;
+        dgvExpenses.CellFormatting += LedgerGrid_CellFormatting;
+
         tabMain.SelectedIndexChanged += TabMain_SelectedIndexChanged;
+
         _ledgerService = ledgerService;
         _settingsService = settingsService;
         Shown += MainForm_Shown;
@@ -270,7 +280,48 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void ExpenseAddClicked(object? sender, EventArgs e)
     {
-        //TODO Similar to IncomeAddClicked when completed.
+        int? frequency = chkExpenseRecurring.Checked == true
+            && cbExpenseFrequency.SelectedIndex != -1
+            ? cbExpenseFrequency.SelectedIndex
+            : null;
+
+        LedgerEntry entry = new()
+        {
+            Type = (int)LedgerEntryType.Expense,
+            Category = cbExpenseCategory.Text,
+            Amount = nudExpenseAmount.Value,
+            TransactionDate = dtpExpenseDate.Value,
+            Notes = txtExpenseNotes.Text,
+            Recurring = chkExpenseRecurring.Checked,
+            Frequency = frequency
+        };
+
+        TransactionFieldsValid(entry, out var errors);
+
+        if (errors.Count > 0)
+        {
+            string message = string.Empty;
+
+            for (int i = 0; i < errors.Count; i++)
+            {
+                message += $"{i + 1}. {errors[i]}\n";
+            }
+
+            MessageBox.Show(message, "Simple Budget", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        bool ok = _ledgerService.AddLedgerEntry(entry);
+
+        if (!ok)
+        {
+            MessageBox.Show("Failed to add expense.", "Simple Budget");
+            return;
+        }
+
+        RefreshExpensesTab();
+
+        ExpenseClearClicked(sender, e);
     }
 
     /// <summary>
@@ -295,8 +346,46 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void ExpenseDeleteSelectedClicked(object? sender, EventArgs e)
     {
-        // TODO: Delete the entry from the database
-        ShowNotImplemented("Delete Expense Entry");
+        var selected = GetSelectedLedgerEntry(dgvExpenses);
+        if (selected is null)
+        {
+            MessageBox.Show("Select an expense entry to delete.", "Simple Budget");
+            return;
+        }
+
+        var language = LabelFormatter.SelectedLanguage;
+
+        var confirmText = language switch
+        {
+            Language.SPANISH => "¿Eliminar la transacción seleccionada?",
+            _ => "Delete the selected transaction?"
+        };
+
+        var title = "Simple Budget";
+
+        var result = MessageBox.Show(
+            confirmText,
+            title,
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning);
+
+        if (result != DialogResult.Yes)
+            return;
+
+        var ok = _ledgerService.RemoveLedgerEntry(selected.Id);
+        if (!ok)
+        {
+            var failText = language switch
+            {
+                Language.SPANISH => "No se pudo eliminar la transacción.",
+                _ => "Failed to delete the transaction."
+            };
+
+            MessageBox.Show(failText, "Simple Budget");
+            return;
+        }
+
+        RefreshExpensesTab();
     }
 
     #endregion
@@ -576,17 +665,10 @@ public partial class MainForm : Form
             cbIncomeCategory.EndUpdate();
         }
 
-        var incomeEntries = _ledgerService.GetLedgerEntries(LedgerEntryType.Income);
+        var entries = _ledgerService.GetLedgerEntries(LedgerEntryType.Income);
 
-        dgvIncome.AutoGenerateColumns = true;
         dgvIncome.DataSource = null;
-        dgvIncome.DataSource = incomeEntries;
-
-        if (dgvIncome.Columns.Contains("Type"))
-            dgvIncome.Columns["Type"].Visible = false;
-
-        if (dgvIncome.Columns.Contains("Id"))
-            dgvIncome.Columns["Id"].Visible = false;
+        dgvIncome.DataSource = entries;
     }
 
     private void RefreshExpensesTab()
@@ -612,7 +694,11 @@ public partial class MainForm : Form
             cbExpenseCategory.EndUpdate();
         }
 
-        // TODO refresh dgvExpenses
+        var entries = _ledgerService.GetLedgerEntries(LedgerEntryType.Expense);
+
+        dgvExpenses.DataSource = null;
+        dgvExpenses.DataSource = entries;
+
     }
 
     private void RefreshSettingsTab()
@@ -667,9 +753,22 @@ public partial class MainForm : Form
 
     private void ApplyLanguageAndRefresh()
     {
+        cbIncomeFrequency.Items.Clear();
+        cbExpenseFrequency.Items.Clear();
+
+        var freq = LabelFormatter.SelectedLanguage == Language.SPANISH
+            ? AppConfig.TransactionFrequencySpanish
+            : AppConfig.TransactionFrequency;
+
+        cbIncomeFrequency.Items.AddRange(freq);
+        cbExpenseFrequency.Items.AddRange(freq);
+        
         LabelFormatter.Apply(this, menuMain);
 
         RefreshCurrentTab();
+
+        LedgerGridHeaderFormatter.RefreshAll();
+
         tabMain.Invalidate();
     }
 
@@ -744,6 +843,32 @@ public partial class MainForm : Form
                         break;
                     }
             }
+        }
+    }
+
+    /// <summary>
+    /// Formats the ledger grid cells.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void LedgerGrid_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+    {
+        if (sender is not DataGridView grid) return;
+
+        if (!grid.Columns.Contains(nameof(LedgerEntry.Frequency))) return;
+        if (grid.Columns[e.ColumnIndex].Name != nameof(LedgerEntry.Frequency)) return;
+
+        if (e.Value is int idx)
+        {
+            e.Value = AppConfig.GetFrequencyDisplay(idx, LabelFormatter.SelectedLanguage);
+            e.FormattingApplied = true;
+            return;
+        }
+
+        if (e.Value is null)
+        {
+            e.Value = string.Empty;
+            e.FormattingApplied = true;
         }
     }
 
@@ -843,6 +968,9 @@ public partial class MainForm : Form
 
         grid.ColumnHeadersDefaultCellStyle.BackColor = AppConfig.ThemePanel;
         grid.ColumnHeadersDefaultCellStyle.ForeColor = AppConfig.ThemeText;
+
+        grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = AppConfig.ThemePanel;
+        grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = AppConfig.ThemeText;
 
         grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(38, 38, 38);
     }

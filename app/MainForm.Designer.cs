@@ -428,7 +428,7 @@ partial class MainForm
 
         menuLanguage.DropDownItems.Add(menuLanguageEnglish);
         menuLanguage.DropDownItems.Add(menuLanguageSpanish);
-        
+
 
         menuHelp.Text = "&Help";
         menuHelpDocs.Text = "&Documentation";
@@ -586,7 +586,7 @@ partial class MainForm
 
         lblDashHint.Dock = DockStyle.Fill;
         lblDashHint.ForeColor = AppConfig.ThemeMuted;
-        lblDashHint.Text ="";
+        lblDashHint.Text = "";
         lblDashHint.Padding = new Padding(12);
         lblDashHint.Name = nameof(lblDashHint);
 
@@ -663,7 +663,10 @@ partial class MainForm
         lblIncomeFrequency.AutoSize = true;
 
         cbIncomeFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbIncomeFrequency.Items.AddRange(AppConfig.TransactionFrequency);
+        cbIncomeFrequency.Items.AddRange(
+            LabelFormatter.SelectedLanguage == Language.SPANISH
+                ? AppConfig.TransactionFrequencySpanish
+                : AppConfig.TransactionFrequency);
         cbIncomeFrequency.Enabled = false;
         cbIncomeFrequency.Width = 150;
         StyleComboBox(cbIncomeFrequency);
@@ -858,7 +861,10 @@ partial class MainForm
         lblExpenseFrequency.AutoSize = true;
 
         cbExpenseFrequency.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbExpenseFrequency.Items.AddRange(AppConfig.TransactionFrequency);
+        cbExpenseFrequency.Items.AddRange(
+            LabelFormatter.SelectedLanguage == Language.SPANISH
+            ? AppConfig.TransactionFrequencySpanish
+            : AppConfig.TransactionFrequency);
         cbExpenseFrequency.Enabled = false;
         cbExpenseFrequency.Width = 150;
         StyleComboBox(cbExpenseFrequency);

@@ -14,14 +14,65 @@ public static class LabelFormatter
     public static Language SelectedLanguage { get; set; } = AppConfig.DefaultLanguage;
 
     /// <summary>
+    /// Ensures every Control/ToolStripItem has a stable Name so it can be translated via dictionary.
+    /// If a Name is missing, we set it to the backing field name (e.g., lblIncomeAmount).
+    /// Call this once after InitializeComponent().
+    /// </summary>
+    public static void EnsureNamesFromFields(object owner, MenuStrip? menu = null)
+    {
+        if (owner is null) return;
+
+        var flags =
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic |
+            System.Reflection.BindingFlags.Public;
+
+        var fields = owner.GetType().GetFields(flags);
+
+        foreach (var f in fields)
+        {
+            var value = f.GetValue(owner);
+            if (value is null) continue;
+
+            if (value is Control c)
+            {
+                if (string.IsNullOrWhiteSpace(c.Name))
+                    c.Name = f.Name;
+                continue;
+            }
+
+            if (value is ToolStripItem tsi)
+            {
+                if (string.IsNullOrWhiteSpace(tsi.Name))
+                    tsi.Name = f.Name;
+            }
+        }
+
+        if (menu != null)
+        {
+            foreach (ToolStripItem item in menu.Items)
+                EnsureToolStripNamesRecursive(item);
+        }
+    }
+
+    private static void EnsureToolStripNamesRecursive(ToolStripItem item)
+    {
+        if (string.IsNullOrWhiteSpace(item.Name))
+            item.Name = item.GetType().Name;
+
+        if (item is ToolStripMenuItem mi)
+        {
+            foreach (ToolStripItem sub in mi.DropDownItems)
+                EnsureToolStripNamesRecursive(sub);
+        }
+    }
+
+    /// <summary>
     /// Key = Control.Name (or ToolStripItem.Name)
     /// Value = translated string
     /// </summary>
     private static readonly Dictionary<Language, Dictionary<string, string>> _labels =
 
-    //TODO Consider not hardcoding and moving to xml file to load. At the same time, if anything
-    //changes with labels, a new .exe needs to be compiled to apply the version so...does it really matter?
-    
         new()
         {
             [Language.ENGLISH] = new()
@@ -33,10 +84,59 @@ public static class LabelFormatter
                     "• Use Reports to filter/export.\n" +
                     "• Use Settings to manage categories (Rent, Groceries, etc.).",
 
+                // App shell / menu / tabs
+                ["menuHelp"] = "&Help",
+                ["menuHelpDocs"] = "&Documentation",
+                ["menuHelpAbout"] = "&About",
                 ["menuLanguage"] = "&Language",
+                ["menuLanguageEnglish"] = "&English",
+                ["menuLanguageSpanish"] = "&Español",
+                ["tabDashboard"] = "Dashboard",
+                ["tabIncome"] = "Income",
+                ["tabExpenses"] = "Expenses",
+                ["tabReports"] = "Reports",
+                ["tabSettings"] = "Settings",
 
+                // Income tab
+                ["gbIncomeEntry"] = "Add Income",
+                ["lblIncomeCategory"] = "Category:",
+                ["lblIncomeAmount"] = "Amount:",
+                ["lblIncomeDate"] = "Date:",
+                ["chkIncomeRecurring"] = "Recurring",
+                ["lblIncomeFrequency"] = "Frequency:",
+                ["lblIncomeNotes"] = "Notes:",
+                ["btnIncomeAdd"] = "Add Income",
+                ["btnIncomeClear"] = "Clear",
+                ["gbIncomeList"] = "Income List",
+                ["btnIncomeDeleteSelected"] = "Delete Selected",
 
-                //TODO Add .Name to more labels in designer and add them here in english
+                // Expenses tab
+                ["gbExpenseEntry"] = "Add Expense",
+                ["lblExpenseCategory"] = "Category:",
+                ["lblExpenseAmount"] = "Amount:",
+                ["lblExpenseDate"] = "Date:",
+                ["chkExpenseRecurring"] = "Recurring",
+                ["lblExpenseFrequency"] = "Frequency:",
+                ["lblExpenseNotes"] = "Notes:",
+                ["btnExpenseAdd"] = "Add Expense",
+                ["btnExpenseClear"] = "Clear",
+                ["gbExpenseList"] = "Expense List",
+                ["btnExpenseDeleteSelected"] = "Delete Selected",
+
+                // Settings tab
+                ["lblSettingsTitle"] = "Settings",
+                ["lblSettingsHint"] = "Add categories here. They will show up in Income/Expenses dropdowns.",
+                ["gbIncomeTypes"] = "Income Categories",
+                ["gbExpenseTypes"] = "Expense Categories",
+                ["btnAddIncomeType"] = "Add Category",
+                ["btnRemoveIncomeType"] = "Remove Selected",
+                ["btnAddExpenseType"] = "Add Category",
+                ["btnRemoveExpenseType"] = "Remove Selected",
+                ["gbSavingsSettings"] = "Savings",
+                ["lblSavingsPercent"] = "Savings %:",
+                ["btnSavingsSave"] = "Save",
+                ["txtNewIncomeType.PlaceholderText"] = "New income category...",
+                ["txtNewExpenseType.PlaceholderText"] = "New expense category..."
             },
 
             [Language.SPANISH] = new()
@@ -48,11 +148,59 @@ public static class LabelFormatter
                     "• Usa Informes para filtrar/exportar.\n" +
                     "• Usa Configuración para administrar categorías (Alquiler, Comestibles, etc.).",
 
+                // App shell / menu / tabs
+                ["menuHelp"] = "&Ayuda",
+                ["menuHelpDocs"] = "&Documentación",
+                ["menuHelpAbout"] = "&Acerca de",
                 ["menuLanguage"] = "&Idioma",
+                ["menuLanguageEnglish"] = "&English",
+                ["menuLanguageSpanish"] = "&Español",
+                ["tabDashboard"] = "Panel",
+                ["tabIncome"] = "Ingresos",
+                ["tabExpenses"] = "Gastos",
+                ["tabReports"] = "Informes",
+                ["tabSettings"] = "Configuración",
 
+                // Income tab
+                ["gbIncomeEntry"] = "Agregar ingreso",
+                ["lblIncomeCategory"] = "Categoría:",
+                ["lblIncomeAmount"] = "Cantidad:",
+                ["lblIncomeDate"] = "Fecha:",
+                ["chkIncomeRecurring"] = "Repetitivo",
+                ["lblIncomeFrequency"] = "Frecuencia:",
+                ["lblIncomeNotes"] = "Notas:",
+                ["btnIncomeAdd"] = "Agregar ingreso",
+                ["btnIncomeClear"] = "Limpiar",
+                ["gbIncomeList"] = "Lista de ingresos",
+                ["btnIncomeDeleteSelected"] = "Eliminar seleccionado",
 
-                //TODO Add .Name to more labels in designer and add them here in spanish
+                // Expenses tab
+                ["gbExpenseEntry"] = "Agregar gasto",
+                ["lblExpenseCategory"] = "Categoría:",
+                ["lblExpenseAmount"] = "Cantidad:",
+                ["lblExpenseDate"] = "Fecha:",
+                ["chkExpenseRecurring"] = "Repetitivo",
+                ["lblExpenseFrequency"] = "Frecuencia:",
+                ["lblExpenseNotes"] = "Notas:",
+                ["btnExpenseAdd"] = "Agregar gasto",
+                ["btnExpenseClear"] = "Limpiar",
+                ["gbExpenseList"] = "Lista de gastos",
+                ["btnExpenseDeleteSelected"] = "Eliminar seleccionado",
 
+                // Settings tab
+                ["lblSettingsTitle"] = "Configuración",
+                ["lblSettingsHint"] = "Agrega categorías aquí. Aparecerán en los menús de Ingresos/Gastos.",
+                ["gbIncomeTypes"] = "Categorías de ingresos",
+                ["gbExpenseTypes"] = "Categorías de gastos",
+                ["btnAddIncomeType"] = "Agregar categoría",
+                ["btnRemoveIncomeType"] = "Eliminar seleccionado",
+                ["btnAddExpenseType"] = "Agregar categoría",
+                ["btnRemoveExpenseType"] = "Eliminar seleccionado",
+                ["gbSavingsSettings"] = "Ahorros",
+                ["lblSavingsPercent"] = "Ahorros %:",
+                ["btnSavingsSave"] = "Guardar",
+                ["txtNewIncomeType.PlaceholderText"] = "Nueva categoría de ingresos...",
+                ["txtNewExpenseType.PlaceholderText"] = "Nueva categoría de gastos..."
             }
         };
 
@@ -86,11 +234,17 @@ public static class LabelFormatter
     {
         string name = control.Name;
 
-        if (!string.IsNullOrWhiteSpace(name) &&
-            _labels.TryGetValue(SelectedLanguage, out var map) &&
-            map.TryGetValue(name, out var text))
+        if (_labels.TryGetValue(SelectedLanguage, out var map))
         {
-            control.Text = text;
+            if (!string.IsNullOrWhiteSpace(name) && map.TryGetValue(name, out var text))
+                control.Text = text;
+
+            if (control is TextBox tb && !string.IsNullOrWhiteSpace(name))
+            {
+                var phKey = $"{name}.PlaceholderText";
+                if (map.TryGetValue(phKey, out var placeholder))
+                    tb.PlaceholderText = placeholder;
+            }
         }
 
         foreach (Control child in control.Controls)
@@ -121,8 +275,6 @@ public static class LabelFormatter
 
     private static void ApplyLanguageMenuChecks(MenuStrip menu)
     {
-        //TODO Fragile if statement. Figure out a better way, especially to support more languages.
-
         if (FindToolStrip(menu, "menuLanguageEnglish") is not ToolStripMenuItem en
             || FindToolStrip(menu, "menuLanguageSpanish") is not ToolStripMenuItem es)
             return;

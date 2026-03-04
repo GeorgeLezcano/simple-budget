@@ -11,7 +11,23 @@ public static class AppConfig
     public const string IconName = "$this.Icon";
     public const Language DefaultLanguage = Language.ENGLISH;
 
-    public static readonly string[] TransactionFrequency = ["Weekly", "Bi-Weekly", "Monthly", "Quarterly", "Yearly"];
+    public static readonly string[] TransactionFrequency =
+    [
+        "Weekly",
+        "Bi-Weekly",
+        "Monthly",
+        "Quarterly",
+        "Yearly"
+    ];
+
+    public static readonly string[] TransactionFrequencySpanish =
+    [
+        "Semanal",
+        "Cada dos semanas",
+        "Mensual",
+        "Trimestral",
+        "Anual"
+    ];
 
     #endregion
 
@@ -43,6 +59,22 @@ public static class AppConfig
     public const string SavingsPercentage = "SavingsPercentage";
 
     public const string LanguagePreference = "LanguagePreference";
+
+    #endregion
+
+    #region Helpers
+
+    public static string GetFrequencyDisplay(int index, Language language)
+    {
+        if (index < 0 || index >= TransactionFrequency.Length)
+            return string.Empty;
+
+        return language switch
+        {
+            Language.SPANISH => TransactionFrequencySpanish[index],
+            _ => TransactionFrequency[index]
+        };
+    }
 
     #endregion
 }
