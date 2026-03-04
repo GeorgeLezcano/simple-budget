@@ -36,7 +36,14 @@ public class LedgerEntry
     /// <summary>
     /// Timestamp of creation time.
     /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Date of when the transaction occurred. This can be in the past since
+    /// its a record of the date. Different than <see cref="CreatedAt"/> which 
+    /// is when the entry was added to the database.
+    /// </summary>
+    public DateTime TransactionDate { get; set; }
 
     /// <summary>
     /// Optional notes to store. Extra information about the entry.

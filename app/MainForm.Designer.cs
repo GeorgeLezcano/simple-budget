@@ -763,6 +763,8 @@ partial class MainForm
         dgvIncome.AllowUserToDeleteRows = false;
         dgvIncome.ReadOnly = true;
         dgvIncome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvIncome.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvIncome.MultiSelect = false;
         ApplyDataGridTheme(dgvIncome);
 
         pnlIncomeListActions.Dock = DockStyle.Fill;
@@ -955,6 +957,8 @@ partial class MainForm
         dgvExpenses.AllowUserToDeleteRows = false;
         dgvExpenses.ReadOnly = true;
         dgvExpenses.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvExpenses.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvExpenses.MultiSelect = false;
         ApplyDataGridTheme(dgvExpenses);
 
         pnlExpenseListActions.Dock = DockStyle.Fill;

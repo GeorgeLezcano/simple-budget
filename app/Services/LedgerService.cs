@@ -35,6 +35,22 @@ public sealed class LedgerService(DbContextProvider db)
     }
 
     /// <summary>
+    /// Retrieves the entries from the database.
+    /// </summary>
+    /// <param name="type">Entry type</param>
+    /// <returns>List of entries</returns>
+    public List<LedgerEntry> GetLedgerEntries(LedgerEntryType type)
+    {
+        using var context = _db.CreateContext();
+
+        return [.. context.LedgerEntries
+        .AsNoTracking()
+        .Where(e => e.Type == (int)type)
+        .OrderByDescending(e => e.TransactionDate)
+        .ThenByDescending(e => e.Id)];
+    }
+
+    /// <summary>
     /// Attempts to remove an entry from the database.
     /// This is for both Income and Expenses.
     /// </summary>

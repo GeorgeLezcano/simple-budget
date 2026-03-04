@@ -139,34 +139,48 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void IncomeAddClicked(object? sender, EventArgs e)
     {
-        // // TODO Validate fields
+        int? frequency = chkIncomeRecurring.Checked == true
+            && cbIncomeFrequency.SelectedIndex != -1
+            ? cbIncomeFrequency.SelectedIndex
+            : null;
 
-        // int? frequency = chkIncomeRecurring.Checked == true 
-        //     && cbIncomeFrequency.SelectedIndex != -1
-        //     ? cbIncomeFrequency.SelectedIndex
-        //     : null;
+        LedgerEntry entry = new()
+        {
+            Type = (int)LedgerEntryType.Income,
+            Category = cbIncomeCategory.Text,
+            Amount = nudIncomeAmount.Value,
+            TransactionDate = dtpIncomeDate.Value,
+            Notes = txtIncomeNotes.Text,
+            Recurring = chkIncomeRecurring.Checked,
+            Frequency = frequency
+        };
 
-        // LedgerEntry entry = new()
-        // {
-        //     Type = (int)LedgerEntryType.Income,
-        //     Category = cbIncomeCategory.Text,
-        //     Amount = nudIncomeAmount.Value,
-        //     Notes = txtIncomeNotes.Text,
-        //     Recurring = chkIncomeRecurring.Checked,
-        //     Frequency = frequency
-        // };
+        TransactionFieldsValid(entry, out var errors);
 
-        // bool ok = _ledgerService.AddLedgerEntry(entry);
+        if (errors.Count > 0)
+        {
+            string message = string.Empty;
 
-        // if (!ok)
-        // {
-        //     MessageBox.Show("Failed to add income.", "Simple Budget");
-        //     return;
-        // }
+            for (int i = 0; i < errors.Count; i++)
+            {
+                message += $"{i + 1}. {errors[i]}\n";
+            }
 
-        // //TODO Add to Income list grid, maybe RefreshCurrentTab() as well ??
+            MessageBox.Show(message, "Simple Budget", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
-        // IncomeClearClicked(sender, e);
+        bool ok = _ledgerService.AddLedgerEntry(entry);
+
+        if (!ok)
+        {
+            MessageBox.Show("Failed to add income.", "Simple Budget");
+            return;
+        }
+
+        RefreshIncomeTab();
+
+        IncomeClearClicked(sender, e);
     }
 
     /// <summary>
@@ -191,10 +205,47 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void IncomeDeleteSelectedClicked(object? sender, EventArgs e)
     {
-        // TODO: Delete the entry from the database
-        ShowNotImplemented("Delete Income Entry");
-    }
+        var selected = GetSelectedLedgerEntry(dgvIncome);
+        if (selected is null)
+        {
+            MessageBox.Show("Select an income entry to delete.", "Simple Budget");
+            return;
+        }
 
+        var language = LabelFormatter.SelectedLanguage;
+
+        var confirmText = language switch
+        {
+            Language.SPANISH => "¿Eliminar la transacción seleccionada?",
+            _ => "Delete the selected transaction?"
+        };
+
+        var title = "Simple Budget";
+
+        var result = MessageBox.Show(
+            confirmText,
+            title,
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning);
+
+        if (result != DialogResult.Yes)
+            return;
+
+        var ok = _ledgerService.RemoveLedgerEntry(selected.Id);
+        if (!ok)
+        {
+            var failText = language switch
+            {
+                Language.SPANISH => "No se pudo eliminar la transacción.",
+                _ => "Failed to delete the transaction."
+            };
+
+            MessageBox.Show(failText, "Simple Budget");
+            return;
+        }
+
+        RefreshIncomeTab();
+    }
 
     #endregion
 
@@ -219,34 +270,7 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void ExpenseAddClicked(object? sender, EventArgs e)
     {
-        // // TODO Validate fields
-
-        // int? frequency = chkExpenseRecurring.Checked == true
-        //     && cbExpenseFrequency.SelectedIndex != -1
-        //     ? cbExpenseFrequency.SelectedIndex
-        //     : null;
-
-        // LedgerEntry entry = new()
-        // {
-        //     Type = (int)LedgerEntryType.Expense,
-        //     Category = cbExpenseCategory.Text,
-        //     Amount = nudExpenseAmount.Value,
-        //     Notes = txtExpenseNotes.Text,
-        //     Recurring = chkExpenseRecurring.Checked,
-        //     Frequency = frequency
-        // };
-
-        // bool ok = _ledgerService.AddLedgerEntry(entry);
-
-        // if (!ok)
-        // {
-        //     MessageBox.Show("Failed to add expense.", "Simple Budget");
-        //     return;
-        // }
-
-        // //TODO Add to Income list grid, maybe RefreshCurrentTab() as well ??
-
-        // ExpenseClearClicked(sender, e);
+        //TODO Similar to IncomeAddClicked when completed.
     }
 
     /// <summary>
@@ -552,7 +576,17 @@ public partial class MainForm : Form
             cbIncomeCategory.EndUpdate();
         }
 
-        // TODO refresh dgvIncome
+        var incomeEntries = _ledgerService.GetLedgerEntries(LedgerEntryType.Income);
+
+        dgvIncome.AutoGenerateColumns = true;
+        dgvIncome.DataSource = null;
+        dgvIncome.DataSource = incomeEntries;
+
+        if (dgvIncome.Columns.Contains("Type"))
+            dgvIncome.Columns["Type"].Visible = false;
+
+        if (dgvIncome.Columns.Contains("Id"))
+            dgvIncome.Columns["Id"].Visible = false;
     }
 
     private void RefreshExpensesTab()
@@ -649,6 +683,85 @@ public partial class MainForm : Form
         cb.Text = string.Empty;
         if (cb.SelectedIndex != -1)
             cb.SelectedIndex = -1;
+    }
+
+    /// <summary>
+    /// Validates the fields of Income/Expenses before adding them to the database.
+    /// </summary>
+    /// <param name="entry">The entry fields</param>
+    /// <param name="errors">The error messages for invalid fields.</param>
+    private static void TransactionFieldsValid(LedgerEntry entry, out List<string> errors)
+    {
+        errors = [];
+        Language language = LabelFormatter.SelectedLanguage;
+
+        if (entry.Category == string.Empty)
+        {
+            switch (language)
+            {
+                case Language.ENGLISH:
+                    {
+                        errors.Add("Category cannot be empty.");
+                        break;
+                    }
+                case Language.SPANISH:
+                    {
+                        errors.Add("La Categoría no puede estar en blanco.");
+                        break;
+                    }
+            }
+        }
+
+        if (entry.Amount <= 0)
+        {
+            switch (language)
+            {
+                case Language.ENGLISH:
+                    {
+                        errors.Add("Amount must be greater than zero.");
+                        break;
+                    }
+                case Language.SPANISH:
+                    {
+                        errors.Add("La Cantidad debe ser mayor que zero.");
+                        break;
+                    }
+            }
+        }
+
+        if (entry.Recurring == true && entry.Frequency == null)
+        {
+            switch (language)
+            {
+                case Language.ENGLISH:
+                    {
+                        errors.Add("Frequency cannot be empty for recurring transactions.");
+                        break;
+                    }
+                case Language.SPANISH:
+                    {
+                        errors.Add("La Frequencia no puede esta en blanco para transacciones repetitivas.");
+                        break;
+                    }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the selected row full entry
+    /// </summary>
+    /// <param name="grid">The grid</param>
+    /// <returns>The ledger entry</returns>
+    private static LedgerEntry? GetSelectedLedgerEntry(DataGridView grid)
+    {
+        if (grid.CurrentRow?.DataBoundItem is LedgerEntry rowItem)
+            return rowItem;
+
+        if (grid.SelectedRows.Count > 0 &&
+            grid.SelectedRows[0].DataBoundItem is LedgerEntry selectedItem)
+            return selectedItem;
+
+        return null;
     }
 
     #endregion

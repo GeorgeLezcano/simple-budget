@@ -58,6 +58,9 @@ namespace App.Data.Migrations
                     b.Property<bool>("Recurring")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 

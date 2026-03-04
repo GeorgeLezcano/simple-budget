@@ -44,6 +44,7 @@ namespace App.Data.Migrations
                     Category = table.Column<string>(type: "TEXT", nullable: false),
                     Amount = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Notes = table.Column<string>(type: "TEXT", nullable: false),
                     Recurring = table.Column<bool>(type: "INTEGER", nullable: false),
                     Frequency = table.Column<int>(type: "INTEGER", nullable: true)

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260220172339_InitialMigration")]
+    [Migration("20260304151917_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -60,6 +60,9 @@ namespace App.Data.Migrations
 
                     b.Property<bool>("Recurring")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");

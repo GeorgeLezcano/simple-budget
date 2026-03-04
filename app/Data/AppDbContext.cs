@@ -46,6 +46,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             b.Property(x => x.Category);
             b.Property(x => x.Amount).HasPrecision(18, 2);
             b.Property(x => x.CreatedAt);
+            b.Property(x => x.TransactionDate);
             b.Property(x => x.Notes);
             b.Property(x => x.Recurring);
             b.Property(x => x.Frequency);
