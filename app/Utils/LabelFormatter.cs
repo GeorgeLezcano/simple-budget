@@ -77,6 +77,15 @@ public static class LabelFormatter
         {
             [Language.ENGLISH] = new()
             {
+                ["lblDashTitle"] = "Simple Budget",
+                ["lblDashSubtitle"] = "Track income and expenses. View summaries by week, month, or year.",
+                ["lblDashRange"] = "View:",
+                ["lblDashMonth"] = "Anchor date:",
+                ["gbDashTotals"] = "Summary",
+                ["lblIncomeTotalTitle"] = "Total Income",
+                ["lblExpenseTotalTitle"] = "Total Expenses",
+                ["lblSavingsTotalTitle"] = "Savings",
+                ["lblNetTotalTitle"] = "Net",
                 ["gbDashNextSteps"] = "Next steps",
                 ["lblDashHint"] =
                     "• Use Income to add money coming in.\n" +
@@ -109,6 +118,7 @@ public static class LabelFormatter
                 ["btnIncomeClear"] = "Clear",
                 ["gbIncomeList"] = "Income List",
                 ["btnIncomeDeleteSelected"] = "Delete Selected",
+                ["btnIncomeDeleteAll"] = "Delete All",
 
                 // Expenses tab
                 ["gbExpenseEntry"] = "Add Expense",
@@ -122,6 +132,7 @@ public static class LabelFormatter
                 ["btnExpenseClear"] = "Clear",
                 ["gbExpenseList"] = "Expense List",
                 ["btnExpenseDeleteSelected"] = "Delete Selected",
+                ["btnExpenseDeleteAll"] = "Delete All",
 
                 // Settings tab
                 ["lblSettingsTitle"] = "Settings",
@@ -141,6 +152,15 @@ public static class LabelFormatter
 
             [Language.SPANISH] = new()
             {
+                ["lblDashTitle"] = "Simple Budget",
+                ["lblDashSubtitle"] = "Controla ingresos y gastos. Mira resúmenes por semana, mes o año.",
+                ["lblDashRange"] = "Vista:",
+                ["lblDashMonth"] = "Fecha ancla:",
+                ["gbDashTotals"] = "Resumen",
+                ["lblIncomeTotalTitle"] = "Ingresos totales",
+                ["lblExpenseTotalTitle"] = "Gastos totales",
+                ["lblSavingsTotalTitle"] = "Ahorros",
+                ["lblNetTotalTitle"] = "Neto",
                 ["gbDashNextSteps"] = "Próximos pasos",
                 ["lblDashHint"] =
                     "• Usa Ingresos para agregar dinero que entra.\n" +
@@ -173,6 +193,7 @@ public static class LabelFormatter
                 ["btnIncomeClear"] = "Limpiar",
                 ["gbIncomeList"] = "Lista de ingresos",
                 ["btnIncomeDeleteSelected"] = "Eliminar seleccionado",
+                ["btnIncomeDeleteAll"] = "Eliminar todo",
 
                 // Expenses tab
                 ["gbExpenseEntry"] = "Agregar gasto",
@@ -186,6 +207,7 @@ public static class LabelFormatter
                 ["btnExpenseClear"] = "Limpiar",
                 ["gbExpenseList"] = "Lista de gastos",
                 ["btnExpenseDeleteSelected"] = "Eliminar seleccionado",
+                ["btnExpenseDeleteAll"] = "Eliminar todo",
 
                 // Settings tab
                 ["lblSettingsTitle"] = "Configuración",

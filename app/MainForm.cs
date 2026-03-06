@@ -1,3 +1,4 @@
+using System.Globalization;
 using App.Constants;
 using App.Data.Entities;
 using App.Services;
@@ -12,6 +13,12 @@ public partial class MainForm : Form
     private readonly SettingsService _settingsService;
 
     private decimal _lastSavedSavingsPercent = -1m;
+
+    private string? _incomeSortColumn;
+    private bool _incomeSortAscending = true;
+
+    private string? _expenseSortColumn;
+    private bool _expenseSortAscending = true;
 
     #region Constructor
 
@@ -34,8 +41,12 @@ public partial class MainForm : Form
 
         dgvIncome.CellFormatting += LedgerGrid_CellFormatting;
         dgvExpenses.CellFormatting += LedgerGrid_CellFormatting;
+        dgvIncome.ColumnHeaderMouseClick += IncomeGrid_ColumnHeaderMouseClick;
+        dgvExpenses.ColumnHeaderMouseClick += ExpenseGrid_ColumnHeaderMouseClick;
 
         tabMain.SelectedIndexChanged += TabMain_SelectedIndexChanged;
+        cbDashRange.SelectedIndexChanged += SummaryMonthChanged;
+        nudSavingsPercent.ValueChanged += SavingsPercentChanged;
 
         _ledgerService = ledgerService;
         _settingsService = settingsService;
@@ -44,26 +55,43 @@ public partial class MainForm : Form
 
     #endregion
 
-    #region Helpers
-
-    //Helper for not implemented features. Removing after
-    private static void ShowNotImplemented(string feature)
-        => MessageBox.Show($"Not implemented\n\nFeature: {feature}", "Simple Budget");
-
-    #endregion
-
     #region Menu Handlers
 
+    /// <summary>
+    /// Handler for Help>Documentation button clicked.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void HelpDocsClicked(object? sender, EventArgs e)
     {
         // TODO: open local docs or project website (later)
-        ShowNotImplemented("Documentation");
+        MessageBox.Show($"Not implemented", "Simple Budget");
     }
 
+    /// <summary>
+    /// Displays information about the application.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void HelpAboutClicked(object? sender, EventArgs e)
     {
-        // TODO: show About dialog with version, author, license, links
-        MessageBox.Show($"Simple Budget\nVersion {XmlHelpers.GetAppVersion()}\n\nA simple income/expense tracker.", "About");
+        var message = LabelFormatter.SelectedLanguage switch
+        {
+            Language.SPANISH =>
+                $"Simple Budget\nVersión {XmlHelpers.GetAppVersion()}\n\n" +
+                "Una aplicación de presupuesto local y ligera para registrar ingresos, gastos y ahorros.\n\n",
+            _ =>
+                $"Simple Budget\nVersion {XmlHelpers.GetAppVersion()}\n\n" +
+                "A lightweight local budget app for tracking income, expenses, and savings.\n\n"
+        };
+
+        var title = LabelFormatter.SelectedLanguage switch
+        {
+            Language.SPANISH => "Acerca de",
+            _ => "About"
+        };
+
+        MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     /// <summary>
@@ -120,11 +148,13 @@ public partial class MainForm : Form
 
     #region Dashboard
 
-    private void SummaryMonthChanged(object? sender, EventArgs e)
-    {
-        // TODO: load totals + grids for selected scope + anchor date
-        ShowNotImplemented("Change dashboard date");
-    }
+    /// <summary>
+    /// Refrehses the dashboard tab when values changed in the summary.;
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void SummaryMonthChanged(object? sender, EventArgs e) =>
+        RefreshDashboardTab();
 
     #endregion
 
@@ -189,6 +219,7 @@ public partial class MainForm : Form
         }
 
         RefreshIncomeTab();
+        RefreshDashboardTab();
 
         IncomeClearClicked(sender, e);
     }
@@ -252,6 +283,72 @@ public partial class MainForm : Form
 
             MessageBox.Show(failText, "Simple Budget");
             return;
+        }
+
+        RefreshIncomeTab();
+        RefreshDashboardTab();
+    }
+
+    /// <summary>
+    /// Deletes all Income entries from the database.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void IncomeDeleteAllClicked(object? sender, EventArgs e)
+    {
+        var language = LabelFormatter.SelectedLanguage;
+
+        var confirmText = language switch
+        {
+            Language.SPANISH => "¿Eliminar todos los ingresos? Esta acción no se puede deshacer.",
+            _ => "Delete all income entries? This action cannot be undone."
+        };
+
+        var result = MessageBox.Show(
+            confirmText,
+            "Simple Budget",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning);
+
+        if (result != DialogResult.Yes)
+            return;
+
+        var ok = _ledgerService.RemoveAllLedgerEntries(LedgerEntryType.Income);
+        if (!ok)
+        {
+            var failText = language switch
+            {
+                Language.SPANISH => "No se pudieron eliminar todos los ingresos.",
+                _ => "Failed to delete all income entries."
+            };
+
+            MessageBox.Show(failText, "Simple Budget");
+            return;
+        }
+
+        RefreshIncomeTab();
+        RefreshDashboardTab();
+    }
+
+    /// <summary>
+    /// Sorts rows based on column headers.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void IncomeGrid_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvIncome.Columns.Count) return;
+
+        var column = dgvIncome.Columns[e.ColumnIndex];
+        var propertyName = GetSortablePropertyName(column);
+        if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+        if (string.Equals(_incomeSortColumn, propertyName, StringComparison.Ordinal))
+            _incomeSortAscending = !_incomeSortAscending;
+        else
+        {
+            _incomeSortColumn = propertyName;
+            _incomeSortAscending = true;
         }
 
         RefreshIncomeTab();
@@ -320,6 +417,7 @@ public partial class MainForm : Form
         }
 
         RefreshExpensesTab();
+        RefreshDashboardTab();
 
         ExpenseClearClicked(sender, e);
     }
@@ -386,40 +484,131 @@ public partial class MainForm : Form
         }
 
         RefreshExpensesTab();
+        RefreshDashboardTab();
+    }
+
+    /// <summary>
+    /// Deletes all expense entries from the database.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ExpenseDeleteAllClicked(object? sender, EventArgs e)
+    {
+        var language = LabelFormatter.SelectedLanguage;
+
+        var confirmText = language switch
+        {
+            Language.SPANISH => "¿Eliminar todos los gastos? Esta acción no se puede deshacer.",
+            _ => "Delete all expense entries? This action cannot be undone."
+        };
+
+        var result = MessageBox.Show(
+            confirmText,
+            "Simple Budget",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning);
+
+        if (result != DialogResult.Yes)
+            return;
+
+        var ok = _ledgerService.RemoveAllLedgerEntries(LedgerEntryType.Expense);
+        if (!ok)
+        {
+            var failText = language switch
+            {
+                Language.SPANISH => "No se pudieron eliminar todos los gastos.",
+                _ => "Failed to delete all expense entries."
+            };
+
+            MessageBox.Show(failText, "Simple Budget");
+            return;
+        }
+
+        RefreshExpensesTab();
+        RefreshDashboardTab();
+    }
+
+    /// <summary>
+    /// Sorts rows by column headers.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ExpenseGrid_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvExpenses.Columns.Count) return;
+
+        var column = dgvExpenses.Columns[e.ColumnIndex];
+        var propertyName = GetSortablePropertyName(column);
+        if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+        if (string.Equals(_expenseSortColumn, propertyName, StringComparison.Ordinal))
+            _expenseSortAscending = !_expenseSortAscending;
+        else
+        {
+            _expenseSortColumn = propertyName;
+            _expenseSortAscending = true;
+        }
+
+        RefreshExpensesTab();
     }
 
     #endregion
 
     #region Reports
 
+    /// <summary>
+    /// On click handler for run report button
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ReportRunClicked(object? sender, EventArgs e)
     {
         // TODO: build query based on filters and load results grid
-        ShowNotImplemented("Run Report");
+        MessageBox.Show($"Not implemented", "Simple Budget");
     }
 
+    /// <summary>
+    /// On click handler for clear filters button.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ReportClearClicked(object? sender, EventArgs e)
     {
         // TODO: reset report filters to defaults
-        ShowNotImplemented("Clear Report Filters");
+        MessageBox.Show($"Not implemented", "Simple Budget");
     }
 
+    /// <summary>
+    /// On click handler for Export to PDF button.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ExportPdfClicked(object? sender, EventArgs e)
     {
         // TODO: export current report results to PDF
-        ShowNotImplemented("Export PDF");
+        MessageBox.Show($"Not implemented", "Simple Budget");
     }
 
+    /// <summary>
+    /// On click handler for Export to Excel button.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ExportExcelClicked(object? sender, EventArgs e)
     {
         // TODO: export current report results to Excel
-        ShowNotImplemented("Export Excel");
+        MessageBox.Show($"Not implemented", "Simple Budget");
     }
 
     #endregion
 
     #region Settings
 
+    /// <summary>
+    /// Handler to add new income types.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void AddIncomeTypeClicked(object? sender, EventArgs e)
     {
         var name = txtNewIncomeType.Text.Trim();
@@ -445,6 +634,11 @@ public partial class MainForm : Form
         RefreshIncomeTab();
     }
 
+    /// <summary>
+    /// Handler to remove existing income types.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void RemoveIncomeTypeClicked(object? sender, EventArgs e)
     {
         if (lbIncomeTypes.SelectedItem is not string name) return;
@@ -460,6 +654,11 @@ public partial class MainForm : Form
         RefreshIncomeTab();
     }
 
+    /// <summary>
+    /// Handler to add a new expense type.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void AddExpenseTypeClicked(object? sender, EventArgs e)
     {
         var name = txtNewExpenseType.Text.Trim();
@@ -485,6 +684,11 @@ public partial class MainForm : Form
         RefreshExpensesTab();
     }
 
+    /// <summary>
+    /// Habdler to remove expense types.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void RemoveExpenseTypeClicked(object? sender, EventArgs e)
     {
         if (lbExpenseTypes.SelectedItem is not string name) return;
@@ -500,27 +704,25 @@ public partial class MainForm : Form
         RefreshExpensesTab();
     }
 
+    /// <summary>
+    /// Handler for Savings % button click.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void SavingsSaveClicked(object? sender, EventArgs e)
     {
-        var value = nudSavingsPercent.Value;
+        SaveSavingsPercent(showErrorMessage: true);
+    }
 
-        if (value == _lastSavedSavingsPercent)
-            return;
-
-        var setting = new AppSetting
-        {
-            Setting = AppConfig.SavingsPercentage,
-            Value = value.ToString(System.Globalization.CultureInfo.InvariantCulture)
-        };
-
-        var ok = _settingsService.Set(setting);
-        if (!ok)
-        {
-            MessageBox.Show("Failed to save Savings %.", "Simple Budget");
-            return;
-        }
-
-        _lastSavedSavingsPercent = value;
+    /// <summary>
+    /// Attempts to autosave on text field change.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void SavingsPercentChanged(object? sender, EventArgs e)
+    {
+        SaveSavingsPercent(showErrorMessage: false);
+        RefreshDashboardTab();
     }
 
     #endregion
@@ -605,9 +807,17 @@ public partial class MainForm : Form
         sc.SplitterWidth = 6;
     }
 
+    /// <summary>
+    /// On Changed handler that triggers a tab refresh.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void TabMain_SelectedIndexChanged(object? sender, EventArgs e) =>
         RefreshCurrentTab();
 
+    /// <summary>
+    /// Refreshes the currently selected tab.
+    /// </summary>
     private void RefreshCurrentTab()
     {
 
@@ -642,6 +852,9 @@ public partial class MainForm : Form
         }
     }
 
+    /// <summary>
+    /// Refreshes the income tab.
+    /// </summary>
     private void RefreshIncomeTab()
     {
         var categories = _ledgerService.GetCategories(LedgerEntryType.Income);
@@ -666,11 +879,16 @@ public partial class MainForm : Form
         }
 
         var entries = _ledgerService.GetLedgerEntries(LedgerEntryType.Income);
+        entries = ApplyLedgerSort(entries, _incomeSortColumn, _incomeSortAscending);
 
         dgvIncome.DataSource = null;
         dgvIncome.DataSource = entries;
+        ApplyGridSortGlyph(dgvIncome, _incomeSortColumn, _incomeSortAscending);
     }
 
+    /// <summary>
+    /// Refreshes the Expenses tab.
+    /// </summary>
     private void RefreshExpensesTab()
     {
         var categories = _ledgerService.GetCategories(LedgerEntryType.Expense);
@@ -695,12 +913,16 @@ public partial class MainForm : Form
         }
 
         var entries = _ledgerService.GetLedgerEntries(LedgerEntryType.Expense);
+        entries = ApplyLedgerSort(entries, _expenseSortColumn, _expenseSortAscending);
 
         dgvExpenses.DataSource = null;
         dgvExpenses.DataSource = entries;
-
+        ApplyGridSortGlyph(dgvExpenses, _expenseSortColumn, _expenseSortAscending);
     }
 
+    /// <summary>
+    /// Refreshes the settings tab.
+    /// </summary>
     private void RefreshSettingsTab()
     {
         var income = _ledgerService.GetCategories(LedgerEntryType.Income);
@@ -725,8 +947,8 @@ public partial class MainForm : Form
         if (_settingsService.TryGetValue(AppConfig.SavingsPercentage, out var saved))
         {
             if (decimal.TryParse(saved,
-                    System.Globalization.NumberStyles.Number,
-                    System.Globalization.CultureInfo.InvariantCulture,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
                     out var parsed))
             {
                 if (parsed < nudSavingsPercent.Minimum) parsed = nudSavingsPercent.Minimum;
@@ -748,13 +970,48 @@ public partial class MainForm : Form
         }
     }
 
-    private static void RefreshDashboardTab() { /* TODO */ }
+    /// <summary>
+    /// Refreshes the dashboard tab, including values and labels.
+    /// </summary>
+    private void RefreshDashboardTab()
+    {
+        var (start, endExclusive) = GetDashboardDateRange();
+
+        var incomeTotal = _ledgerService
+            .GetLedgerEntries(LedgerEntryType.Income, start, endExclusive)
+            .Sum(x => x.Amount);
+
+        var expenseTotal = _ledgerService
+            .GetLedgerEntries(LedgerEntryType.Expense, start, endExclusive)
+            .Sum(x => x.Amount);
+
+        var remainingAfterExpenses = incomeTotal - expenseTotal;
+        var savingsPercent = nudSavingsPercent.Value / 100m;
+        var savingsAmount = remainingAfterExpenses > 0
+            ? remainingAfterExpenses * savingsPercent
+            : 0m;
+        var netAmount = remainingAfterExpenses - savingsAmount;
+
+        lblIncomeTotalValue.Text = FormatCurrency(incomeTotal);
+        lblExpenseTotalValue.Text = FormatCurrency(expenseTotal);
+        lblSavingsTotalValue.Text = FormatCurrency(savingsAmount);
+        lblNetTotalValue.Text = FormatCurrency(netAmount);
+    }
+
     private static void RefreshReportsTab() { /* TODO */ }
 
+    /// <summary>
+    /// Applies the selected language, and refreshes the tab.
+    /// </summary>
     private void ApplyLanguageAndRefresh()
     {
+        var selectedIncomeFrequency = cbIncomeFrequency.SelectedIndex;
+        var selectedExpenseFrequency = cbExpenseFrequency.SelectedIndex;
+        var selectedDashboardRange = cbDashRange.SelectedIndex < 0 ? 1 : cbDashRange.SelectedIndex;
+
         cbIncomeFrequency.Items.Clear();
         cbExpenseFrequency.Items.Clear();
+        cbDashRange.Items.Clear();
 
         var freq = LabelFormatter.SelectedLanguage == Language.SPANISH
             ? AppConfig.TransactionFrequencySpanish
@@ -762,7 +1019,22 @@ public partial class MainForm : Form
 
         cbIncomeFrequency.Items.AddRange(freq);
         cbExpenseFrequency.Items.AddRange(freq);
-        
+        cbDashRange.Items.AddRange(AppConfig.GetDashboardViewItems(LabelFormatter.SelectedLanguage));
+
+        if (selectedIncomeFrequency >= 0 && selectedIncomeFrequency < cbIncomeFrequency.Items.Count)
+            cbIncomeFrequency.SelectedIndex = selectedIncomeFrequency;
+        else
+            cbIncomeFrequency.SelectedIndex = -1;
+
+        if (selectedExpenseFrequency >= 0 && selectedExpenseFrequency < cbExpenseFrequency.Items.Count)
+            cbExpenseFrequency.SelectedIndex = selectedExpenseFrequency;
+        else
+            cbExpenseFrequency.SelectedIndex = -1;
+
+        cbDashRange.SelectedIndex = selectedDashboardRange >= 0 && selectedDashboardRange < cbDashRange.Items.Count
+            ? selectedDashboardRange
+            : 1;
+
         LabelFormatter.Apply(this, menuMain);
 
         RefreshCurrentTab();
@@ -770,6 +1042,131 @@ public partial class MainForm : Form
         LedgerGridHeaderFormatter.RefreshAll();
 
         tabMain.Invalidate();
+    }
+
+    /// <summary>
+    /// Save handler for percent.
+    /// </summary>
+    /// <param name="showErrorMessage"></param>
+    /// <returns></returns>
+    private bool SaveSavingsPercent(bool showErrorMessage)
+    {
+        var value = nudSavingsPercent.Value;
+
+        if (value == _lastSavedSavingsPercent)
+            return true;
+
+        var setting = new AppSetting
+        {
+            Setting = AppConfig.SavingsPercentage,
+            Value = value.ToString(CultureInfo.InvariantCulture)
+        };
+
+        var ok = _settingsService.Set(setting);
+        if (!ok)
+        {
+            if (showErrorMessage)
+                MessageBox.Show("Failed to save Savings %.", "Simple Budget");
+
+            return false;
+        }
+
+        _lastSavedSavingsPercent = value;
+        return true;
+    }
+
+    /// <summary>
+    /// Gets the dashboard date range.
+    /// </summary>
+    /// <returns></returns>
+    private (DateTime start, DateTime endExclusive) GetDashboardDateRange()
+    {
+        var anchor = dtpDashMonth.Value.Date;
+
+        return cbDashRange.SelectedIndex switch
+        {
+            0 => GetWeekDateRange(anchor),
+            2 => (new DateTime(anchor.Year, 1, 1), new DateTime(anchor.Year + 1, 1, 1)),
+            _ => (new DateTime(anchor.Year, anchor.Month, 1), new DateTime(anchor.Year, anchor.Month, 1).AddMonths(1))
+        };
+    }
+
+    /// <summary>
+    /// Gets the week date range using anchor.
+    /// </summary>
+    /// <param name="anchor"></param>
+    /// <returns></returns>
+    private static (DateTime start, DateTime endExclusive) GetWeekDateRange(DateTime anchor)
+    {
+        var firstDay = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+        var offset = (7 + (anchor.DayOfWeek - firstDay)) % 7;
+        var start = anchor.AddDays(-offset).Date;
+        return (start, start.AddDays(7));
+    }
+
+    /// <summary>
+    /// Formats the currency based on language and culture.
+    /// </summary>
+    /// <param name="amount">Currency amount</param>
+    /// <returns></returns>
+    private static string FormatCurrency(decimal amount) =>
+        amount.ToString("C2", UiCulture);
+
+    private static string GetSortablePropertyName(DataGridViewColumn column)
+    {
+        if (!string.IsNullOrWhiteSpace(column.DataPropertyName))
+            return column.DataPropertyName;
+
+        return column.Name;
+    }
+
+    private static List<LedgerEntry> ApplyLedgerSort(List<LedgerEntry> entries, string? propertyName, bool ascending)
+    {
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return entries;
+
+        var property = typeof(LedgerEntry).GetProperty(propertyName);
+        if (property is null)
+            return entries;
+
+        object? selector(LedgerEntry entry) => property.GetValue(entry);
+
+        return ascending
+            ? [.. entries.OrderBy(selector, Comparer<object?>.Create(CompareObjects))]
+            : [.. entries.OrderByDescending(selector, Comparer<object?>.Create(CompareObjects))];
+    }
+
+    private static int CompareObjects(object? left, object? right)
+    {
+        if (ReferenceEquals(left, right)) return 0;
+        if (left is null) return -1;
+        if (right is null) return 1;
+
+        if (left is string ls && right is string rs)
+            return string.Compare(ls, rs, StringComparison.CurrentCultureIgnoreCase);
+
+        if (left is IComparable comparable)
+            return comparable.CompareTo(right);
+
+        return string.Compare(left.ToString(), right.ToString(), StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private static void ApplyGridSortGlyph(DataGridView grid, string? propertyName, bool ascending)
+    {
+        foreach (DataGridViewColumn column in grid.Columns)
+            column.HeaderCell.SortGlyphDirection = SortOrder.None;
+
+        if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+        foreach (DataGridViewColumn column in grid.Columns)
+        {
+            if (GetSortablePropertyName(column) != propertyName) continue;
+
+            column.HeaderCell.SortGlyphDirection = ascending
+                ? SortOrder.Ascending
+                : SortOrder.Descending;
+            return;
+        }
     }
 
     /// <summary>
@@ -888,6 +1285,16 @@ public partial class MainForm : Form
 
         return null;
     }
+
+
+    /// <summary>
+    /// Sets the UI Culture based on selected language for labels.
+    /// </summary>
+    private static CultureInfo UiCulture => LabelFormatter.SelectedLanguage switch
+    {
+        Language.SPANISH => new CultureInfo("es-ES"),
+        _ => new CultureInfo("en-US")
+    };
 
     #endregion
 

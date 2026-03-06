@@ -11,6 +11,9 @@ public static class AppConfig
     public const string IconName = "$this.Icon";
     public const Language DefaultLanguage = Language.ENGLISH;
 
+    /// <summary>
+    /// Default transaction frequency. English.
+    /// </summary>
     public static readonly string[] TransactionFrequency =
     [
         "Weekly",
@@ -20,6 +23,9 @@ public static class AppConfig
         "Yearly"
     ];
 
+    /// <summary>
+    /// Transaction frequency in spanish.
+    /// </summary>
     public static readonly string[] TransactionFrequencySpanish =
     [
         "Semanal",
@@ -27,6 +33,26 @@ public static class AppConfig
         "Mensual",
         "Trimestral",
         "Anual"
+    ];
+
+    /// <summary>
+    /// Default dashboard view. English.
+    /// </summary>
+    public static readonly string[] DashboardView =
+    [
+        "Week",
+        "Month",
+        "Year"
+    ];
+
+    /// <summary>
+    /// Dashboard views in spanish
+    /// </summary>
+    public static readonly string[] DashboardViewSpanish =
+    [
+        "Semana",
+        "Mes",
+        "Año"
     ];
 
     #endregion
@@ -64,6 +90,13 @@ public static class AppConfig
 
     #region Helpers
 
+    /// <summary>
+    /// Retrieves the frequency display based on provided language
+    /// and index.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="language"></param>
+    /// <returns></returns>
     public static string GetFrequencyDisplay(int index, Language language)
     {
         if (index < 0 || index >= TransactionFrequency.Length)
@@ -73,6 +106,20 @@ public static class AppConfig
         {
             Language.SPANISH => TransactionFrequencySpanish[index],
             _ => TransactionFrequency[index]
+        };
+    }
+
+    /// <summary>
+    /// Gets the dashboard view items based on language.
+    /// </summary>
+    /// <param name="language"></param>
+    /// <returns></returns>
+    public static string[] GetDashboardViewItems(Language language)
+    {
+        return language switch
+        {
+            Language.SPANISH => DashboardViewSpanish,
+            _ => DashboardView
         };
     }
 

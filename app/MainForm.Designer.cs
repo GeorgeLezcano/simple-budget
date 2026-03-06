@@ -84,6 +84,7 @@ partial class MainForm
     private Panel pnlIncomeListActions;
     private FlowLayoutPanel flpIncomeListActions;
     private Button btnIncomeDeleteSelected;
+    private Button btnIncomeDeleteAll;
 
     private CheckBox chkIncomeRecurring;
     private Label lblIncomeFrequency;
@@ -120,6 +121,7 @@ partial class MainForm
     private Panel pnlExpenseListActions;
     private FlowLayoutPanel flpExpenseListActions;
     private Button btnExpenseDeleteSelected;
+    private Button btnExpenseDeleteAll;
 
     // Reports
     private SplitContainer scReports;
@@ -284,6 +286,7 @@ partial class MainForm
         pnlIncomeListActions = new Panel();
         flpIncomeListActions = new FlowLayoutPanel();
         btnIncomeDeleteSelected = new Button();
+        btnIncomeDeleteAll = new Button();
 
         chkIncomeRecurring = new CheckBox();
         lblIncomeFrequency = new Label();
@@ -320,6 +323,7 @@ partial class MainForm
         pnlExpenseListActions = new Panel();
         flpExpenseListActions = new FlowLayoutPanel();
         btnExpenseDeleteSelected = new Button();
+        btnExpenseDeleteAll = new Button();
 
         // Reports
         scReports = new SplitContainer();
@@ -497,7 +501,7 @@ partial class MainForm
         lblDashRange.Location = new Point(580, 18);
 
         cbDashRange.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbDashRange.Items.AddRange(new object[] { "Week", "Month", "Year" });
+        cbDashRange.Items.AddRange(AppConfig.GetDashboardViewItems(LabelFormatter.SelectedLanguage));
         cbDashRange.SelectedIndex = 1;
         cbDashRange.Width = 110;
         cbDashRange.Location = new Point(640, 14);
@@ -783,7 +787,13 @@ partial class MainForm
         StyleButton(btnIncomeDeleteSelected);
         btnIncomeDeleteSelected.Click += IncomeDeleteSelectedClicked;
 
+        btnIncomeDeleteAll.Text = "Delete All";
+        btnIncomeDeleteAll.Width = 140;
+        StyleButton(btnIncomeDeleteAll);
+        btnIncomeDeleteAll.Click += IncomeDeleteAllClicked;
+
         flpIncomeListActions.Controls.Add(btnIncomeDeleteSelected);
+        flpIncomeListActions.Controls.Add(btnIncomeDeleteAll);
         pnlIncomeListActions.Controls.Add(flpIncomeListActions);
 
         tlpIncomeList.Controls.Add(dgvIncome, 0, 0);
@@ -980,7 +990,13 @@ partial class MainForm
         StyleButton(btnExpenseDeleteSelected);
         btnExpenseDeleteSelected.Click += ExpenseDeleteSelectedClicked;
 
+        btnExpenseDeleteAll.Text = "Delete All";
+        btnExpenseDeleteAll.Width = 140;
+        StyleButton(btnExpenseDeleteAll);
+        btnExpenseDeleteAll.Click += ExpenseDeleteAllClicked;
+
         flpExpenseListActions.Controls.Add(btnExpenseDeleteSelected);
+        flpExpenseListActions.Controls.Add(btnExpenseDeleteAll);
         pnlExpenseListActions.Controls.Add(flpExpenseListActions);
 
         tlpExpenseList.Controls.Add(dgvExpenses, 0, 0);

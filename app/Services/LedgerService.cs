@@ -1,3 +1,4 @@
+using App.Data;
 using App.Constants;
 using App.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -43,11 +44,27 @@ public sealed class LedgerService(DbContextProvider db)
     {
         using var context = _db.CreateContext();
 
-        return [.. context.LedgerEntries
-        .AsNoTracking()
-        .Where(e => e.Type == (int)type)
-        .OrderByDescending(e => e.TransactionDate)
-        .ThenByDescending(e => e.Id)];
+        return [.. BuildLedgerEntriesQuery(context, type)
+            .OrderByDescending(e => e.TransactionDate)
+            .ThenByDescending(e => e.Id)];
+    }
+
+    /// <summary>
+    /// Retrieves the entries from the database within a TransactionDate range.
+    /// End is exclusive.
+    /// </summary>
+    /// <param name="type">Entry type</param>
+    /// <param name="start">Inclusive start date</param>
+    /// <param name="endExclusive">Exclusive end date</param>
+    /// <returns>List of entries</returns>
+    public List<LedgerEntry> GetLedgerEntries(LedgerEntryType type, DateTime start, DateTime endExclusive)
+    {
+        using var context = _db.CreateContext();
+
+        return [.. BuildLedgerEntriesQuery(context, type)
+            .Where(e => e.TransactionDate >= start && e.TransactionDate < endExclusive)
+            .OrderByDescending(e => e.TransactionDate)
+            .ThenByDescending(e => e.Id)];
     }
 
     /// <summary>
@@ -66,6 +83,34 @@ public sealed class LedgerService(DbContextProvider db)
             if (entity is null) return false;
 
             context.LedgerEntries.Remove(entity);
+            context.SaveChanges();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts to remove all entries of the provided type.
+    /// </summary>
+    /// <param name="type">Entry type</param>
+    /// <returns>True if the request is successful; False otherwise.</returns>
+    public bool RemoveAllLedgerEntries(LedgerEntryType type)
+    {
+        try
+        {
+            using var context = _db.CreateContext();
+
+            var entities = context.LedgerEntries
+                .Where(e => e.Type == (int)type)
+                .ToList();
+
+            if (entities.Count == 0)
+                return true;
+
+            context.LedgerEntries.RemoveRange(entities);
             context.SaveChanges();
             return true;
         }
@@ -141,4 +186,17 @@ public sealed class LedgerService(DbContextProvider db)
         }
     }
 
+    /// <summary>
+    /// Builds a query for ledger entry using
+    /// entry type.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    private static IQueryable<LedgerEntry> BuildLedgerEntriesQuery(AppDbContext context, LedgerEntryType type)
+    {
+        return context.LedgerEntries
+            .AsNoTracking()
+            .Where(e => e.Type == (int)type);
+    }
 }
