@@ -1352,10 +1352,6 @@ partial class MainForm
         gbSavingsSettings.Text = "Savings";
         StyleGroupBox(gbSavingsSettings);
 
-        gbSavingsSettings.Dock = DockStyle.Fill;
-        gbSavingsSettings.Text = "Savings";
-        StyleGroupBox(gbSavingsSettings);
-
         tlpSavingsSettings.Dock = DockStyle.Fill;
         tlpSavingsSettings.Padding = new Padding(12);
         tlpSavingsSettings.ColumnCount = 3;

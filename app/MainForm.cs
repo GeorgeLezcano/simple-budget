@@ -41,6 +41,7 @@ public partial class MainForm : Form
 
         dgvIncome.CellFormatting += LedgerGrid_CellFormatting;
         dgvExpenses.CellFormatting += LedgerGrid_CellFormatting;
+
         dgvIncome.ColumnHeaderMouseClick += IncomeGrid_ColumnHeaderMouseClick;
         dgvExpenses.ColumnHeaderMouseClick += ExpenseGrid_ColumnHeaderMouseClick;
 
@@ -179,8 +180,7 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void IncomeAddClicked(object? sender, EventArgs e)
     {
-        int? frequency = chkIncomeRecurring.Checked == true
-            && cbIncomeFrequency.SelectedIndex != -1
+        int? frequency = chkIncomeRecurring.Checked && cbIncomeFrequency.SelectedIndex != -1
             ? cbIncomeFrequency.SelectedIndex
             : null;
 
@@ -337,11 +337,17 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void IncomeGrid_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
     {
-        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvIncome.Columns.Count) return;
+        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvIncome.Columns.Count)
+            return;
 
         var column = dgvIncome.Columns[e.ColumnIndex];
         var propertyName = GetSortablePropertyName(column);
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return;
+
+        if (typeof(LedgerEntry).GetProperty(propertyName) is null)
+            return;
 
         if (string.Equals(_incomeSortColumn, propertyName, StringComparison.Ordinal))
             _incomeSortAscending = !_incomeSortAscending;
@@ -535,11 +541,17 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void ExpenseGrid_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
     {
-        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvExpenses.Columns.Count) return;
+        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvExpenses.Columns.Count)
+            return;
 
         var column = dgvExpenses.Columns[e.ColumnIndex];
         var propertyName = GetSortablePropertyName(column);
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return;
+
+        if (typeof(LedgerEntry).GetProperty(propertyName) is null)
+            return;
 
         if (string.Equals(_expenseSortColumn, propertyName, StringComparison.Ordinal))
             _expenseSortAscending = !_expenseSortAscending;
@@ -712,6 +724,7 @@ public partial class MainForm : Form
     private void SavingsSaveClicked(object? sender, EventArgs e)
     {
         SaveSavingsPercent(showErrorMessage: true);
+        RefreshDashboardTab();
     }
 
     /// <summary>
@@ -759,7 +772,9 @@ public partial class MainForm : Form
             LabelFormatter.SelectedLanguage = Language.ENGLISH;
         }
 
+        LoadSavedSavingsPercent();
         ApplyLanguageAndRefresh();
+        RefreshDashboardTab();
     }
 
     #endregion
@@ -883,6 +898,16 @@ public partial class MainForm : Form
 
         dgvIncome.DataSource = null;
         dgvIncome.DataSource = entries;
+
+        foreach (DataGridViewColumn column in dgvIncome.Columns)
+            column.SortMode = DataGridViewColumnSortMode.Programmatic;
+
+        if (!string.IsNullOrWhiteSpace(_incomeSortColumn) &&
+            !GridContainsSortableProperty(dgvIncome, _incomeSortColumn))
+        {
+            _incomeSortColumn = null;
+        }
+
         ApplyGridSortGlyph(dgvIncome, _incomeSortColumn, _incomeSortAscending);
     }
 
@@ -917,6 +942,16 @@ public partial class MainForm : Form
 
         dgvExpenses.DataSource = null;
         dgvExpenses.DataSource = entries;
+
+        foreach (DataGridViewColumn column in dgvExpenses.Columns)
+            column.SortMode = DataGridViewColumnSortMode.Programmatic;
+
+        if (!string.IsNullOrWhiteSpace(_expenseSortColumn) &&
+            !GridContainsSortableProperty(dgvExpenses, _expenseSortColumn))
+        {
+            _expenseSortColumn = null;
+        }
+
         ApplyGridSortGlyph(dgvExpenses, _expenseSortColumn, _expenseSortAscending);
     }
 
@@ -943,31 +978,6 @@ public partial class MainForm : Form
             lbIncomeTypes.EndUpdate();
             lbExpenseTypes.EndUpdate();
         }
-
-        if (_settingsService.TryGetValue(AppConfig.SavingsPercentage, out var saved))
-        {
-            if (decimal.TryParse(saved,
-                    NumberStyles.Number,
-                    CultureInfo.InvariantCulture,
-                    out var parsed))
-            {
-                if (parsed < nudSavingsPercent.Minimum) parsed = nudSavingsPercent.Minimum;
-                if (parsed > nudSavingsPercent.Maximum) parsed = nudSavingsPercent.Maximum;
-
-                nudSavingsPercent.Value = parsed;
-                _lastSavedSavingsPercent = parsed;
-            }
-            else
-            {
-                nudSavingsPercent.Value = 0;
-                _lastSavedSavingsPercent = 0;
-            }
-        }
-        else
-        {
-            nudSavingsPercent.Value = 0;
-            _lastSavedSavingsPercent = 0;
-        }
     }
 
     /// <summary>
@@ -975,22 +985,37 @@ public partial class MainForm : Form
     /// </summary>
     private void RefreshDashboardTab()
     {
-        var (start, endExclusive) = GetDashboardDateRange();
+        var (rangeStart, rangeEndExclusive) = GetDashboardDateRange();
 
-        var incomeTotal = _ledgerService
-            .GetLedgerEntries(LedgerEntryType.Income, start, endExclusive)
-            .Sum(x => x.Amount);
+        var today = DateTime.Today;
+        var cappedEndExclusive = rangeEndExclusive.Date > today.AddDays(1)
+            ? today.AddDays(1)
+            : rangeEndExclusive.Date;
 
-        var expenseTotal = _ledgerService
-            .GetLedgerEntries(LedgerEntryType.Expense, start, endExclusive)
-            .Sum(x => x.Amount);
+        if (cappedEndExclusive <= rangeStart.Date)
+        {
+            lblIncomeTotalValue.Text = FormatCurrency(0);
+            lblExpenseTotalValue.Text = FormatCurrency(0);
+            lblSavingsTotalValue.Text = FormatCurrency(0);
+            lblNetTotalValue.Text = FormatCurrency(0);
+            return;
+        }
 
-        var remainingAfterExpenses = incomeTotal - expenseTotal;
+        var incomes = _ledgerService.GetLedgerEntries(LedgerEntryType.Income);
+        var expenses = _ledgerService.GetLedgerEntries(LedgerEntryType.Expense);
+
+        var incomeTotal = CalculateDashboardTotal(incomes, rangeStart.Date, cappedEndExclusive);
+        var expenseTotal = CalculateDashboardTotal(expenses, rangeStart.Date, cappedEndExclusive);
+
+        var remainder = incomeTotal - expenseTotal;
+
         var savingsPercent = nudSavingsPercent.Value / 100m;
-        var savingsAmount = remainingAfterExpenses > 0
-            ? remainingAfterExpenses * savingsPercent
+
+        var savingsAmount = remainder > 0
+            ? decimal.Round(remainder * savingsPercent, 2)
             : 0m;
-        var netAmount = remainingAfterExpenses - savingsAmount;
+
+        var netAmount = remainder - savingsAmount;
 
         lblIncomeTotalValue.Text = FormatCurrency(incomeTotal);
         lblExpenseTotalValue.Text = FormatCurrency(expenseTotal);
@@ -1005,13 +1030,8 @@ public partial class MainForm : Form
     /// </summary>
     private void ApplyLanguageAndRefresh()
     {
-        var selectedIncomeFrequency = cbIncomeFrequency.SelectedIndex;
-        var selectedExpenseFrequency = cbExpenseFrequency.SelectedIndex;
-        var selectedDashboardRange = cbDashRange.SelectedIndex < 0 ? 1 : cbDashRange.SelectedIndex;
-
         cbIncomeFrequency.Items.Clear();
         cbExpenseFrequency.Items.Clear();
-        cbDashRange.Items.Clear();
 
         var freq = LabelFormatter.SelectedLanguage == Language.SPANISH
             ? AppConfig.TransactionFrequencySpanish
@@ -1019,28 +1039,23 @@ public partial class MainForm : Form
 
         cbIncomeFrequency.Items.AddRange(freq);
         cbExpenseFrequency.Items.AddRange(freq);
-        cbDashRange.Items.AddRange(AppConfig.GetDashboardViewItems(LabelFormatter.SelectedLanguage));
 
-        if (selectedIncomeFrequency >= 0 && selectedIncomeFrequency < cbIncomeFrequency.Items.Count)
-            cbIncomeFrequency.SelectedIndex = selectedIncomeFrequency;
-        else
-            cbIncomeFrequency.SelectedIndex = -1;
+        var selectedDashIndex = cbDashRange.SelectedIndex < 0 ? 1 : cbDashRange.SelectedIndex;
 
-        if (selectedExpenseFrequency >= 0 && selectedExpenseFrequency < cbExpenseFrequency.Items.Count)
-            cbExpenseFrequency.SelectedIndex = selectedExpenseFrequency;
-        else
-            cbExpenseFrequency.SelectedIndex = -1;
+        cbDashRange.Items.Clear();
+        cbDashRange.Items.AddRange(
+            LabelFormatter.SelectedLanguage == Language.SPANISH
+                ? AppConfig.DashboardViewSpanish
+                : AppConfig.DashboardView);
 
-        cbDashRange.SelectedIndex = selectedDashboardRange >= 0 && selectedDashboardRange < cbDashRange.Items.Count
-            ? selectedDashboardRange
-            : 1;
+        cbDashRange.SelectedIndex = selectedDashIndex;
 
         LabelFormatter.Apply(this, menuMain);
 
         RefreshCurrentTab();
+        RefreshDashboardTab();
 
         LedgerGridHeaderFormatter.RefreshAll();
-
         tabMain.Invalidate();
     }
 
@@ -1059,10 +1074,11 @@ public partial class MainForm : Form
         var setting = new AppSetting
         {
             Setting = AppConfig.SavingsPercentage,
-            Value = value.ToString(CultureInfo.InvariantCulture)
+            Value = value.ToString(System.Globalization.CultureInfo.InvariantCulture)
         };
 
         var ok = _settingsService.Set(setting);
+
         if (!ok)
         {
             if (showErrorMessage)
@@ -1109,8 +1125,13 @@ public partial class MainForm : Form
     /// </summary>
     /// <param name="amount">Currency amount</param>
     /// <returns></returns>
-    private static string FormatCurrency(decimal amount) =>
-        amount.ToString("C2", UiCulture);
+    private static string FormatCurrency(decimal amount)
+    {
+        return string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            "${0:N2}",
+            amount);
+    }
 
     private static string GetSortablePropertyName(DataGridViewColumn column)
     {
@@ -1139,11 +1160,18 @@ public partial class MainForm : Form
     private static int CompareObjects(object? left, object? right)
     {
         if (ReferenceEquals(left, right)) return 0;
+
+        if (left is null && right is int) return -1;
+        if (left is int && right is null) return 1;
+
         if (left is null) return -1;
         if (right is null) return 1;
 
         if (left is string ls && right is string rs)
             return string.Compare(ls, rs, StringComparison.CurrentCultureIgnoreCase);
+
+        if (left is bool lb && right is bool rb)
+            return lb.CompareTo(rb);
 
         if (left is IComparable comparable)
             return comparable.CompareTo(right);
@@ -1154,17 +1182,28 @@ public partial class MainForm : Form
     private static void ApplyGridSortGlyph(DataGridView grid, string? propertyName, bool ascending)
     {
         foreach (DataGridViewColumn column in grid.Columns)
-            column.HeaderCell.SortGlyphDirection = SortOrder.None;
+        {
+            if (column.SortMode == DataGridViewColumnSortMode.NotSortable)
+                column.SortMode = DataGridViewColumnSortMode.Programmatic;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
+            column.HeaderCell.SortGlyphDirection = SortOrder.None;
+        }
+
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return;
 
         foreach (DataGridViewColumn column in grid.Columns)
         {
-            if (GetSortablePropertyName(column) != propertyName) continue;
+            if (GetSortablePropertyName(column) != propertyName)
+                continue;
+
+            if (column.SortMode == DataGridViewColumnSortMode.NotSortable)
+                column.SortMode = DataGridViewColumnSortMode.Programmatic;
 
             column.HeaderCell.SortGlyphDirection = ascending
                 ? SortOrder.Ascending
                 : SortOrder.Descending;
+
             return;
         }
     }
@@ -1286,15 +1325,135 @@ public partial class MainForm : Form
         return null;
     }
 
-
     /// <summary>
-    /// Sets the UI Culture based on selected language for labels.
+    /// Loads the savings percent.
     /// </summary>
-    private static CultureInfo UiCulture => LabelFormatter.SelectedLanguage switch
+    private void LoadSavedSavingsPercent()
     {
-        Language.SPANISH => new CultureInfo("es-ES"),
-        _ => new CultureInfo("en-US")
-    };
+        if (_settingsService.TryGetValue(AppConfig.SavingsPercentage, out var saved) &&
+            decimal.TryParse(
+                saved,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var parsed))
+        {
+            if (parsed < nudSavingsPercent.Minimum) parsed = nudSavingsPercent.Minimum;
+            if (parsed > nudSavingsPercent.Maximum) parsed = nudSavingsPercent.Maximum;
+
+            nudSavingsPercent.Value = parsed;
+            _lastSavedSavingsPercent = parsed;
+        }
+        else
+        {
+            nudSavingsPercent.Value = 0;
+            _lastSavedSavingsPercent = 0;
+        }
+    }
+
+    private decimal CalculateDashboardTotal(
+    List<LedgerEntry> entries,
+    DateTime rangeStart,
+    DateTime rangeEndExclusive)
+    {
+        decimal total = 0m;
+
+        foreach (var entry in entries)
+        {
+            total += CalculateEntryContribution(entry, rangeStart, rangeEndExclusive);
+        }
+
+        return total;
+    }
+
+    private decimal CalculateEntryContribution(
+        LedgerEntry entry,
+        DateTime rangeStart,
+        DateTime rangeEndExclusive)
+    {
+        var startDate = entry.TransactionDate.Date;
+
+        if (startDate >= DateTime.Today.AddDays(1))
+            return 0m;
+
+        if (entry.Frequency is null)
+        {
+            return startDate >= rangeStart && startDate < rangeEndExclusive
+                ? entry.Amount
+                : 0m;
+        }
+
+        var occurrences = CountRecurringOccurrencesInRange(
+            startDate,
+            entry.Frequency.Value,
+            rangeStart,
+            rangeEndExclusive);
+
+        return entry.Amount * occurrences;
+    }
+
+    private static int CountRecurringOccurrencesInRange(
+    DateTime startDate,
+    int frequencyIndex,
+    DateTime rangeStart,
+    DateTime rangeEndExclusive)
+    {
+        if (startDate >= rangeEndExclusive)
+            return 0;
+
+        var todayExclusive = DateTime.Today.AddDays(1);
+
+        if (startDate >= todayExclusive)
+            return 0;
+
+        var effectiveEndExclusive = rangeEndExclusive < todayExclusive
+            ? rangeEndExclusive
+            : todayExclusive;
+
+        if (effectiveEndExclusive <= rangeStart)
+            return 0;
+
+        int count = 0;
+        var current = startDate.Date;
+
+        while (current < effectiveEndExclusive)
+        {
+            if (current >= rangeStart)
+                count++;
+
+            var next = AddFrequency(current, frequencyIndex);
+
+            if (next <= current)
+                break;
+
+            current = next;
+        }
+
+        return count;
+    }
+
+    private static DateTime AddFrequency(DateTime date, int frequencyIndex)
+    {
+        return frequencyIndex switch
+        {
+            0 => date.AddDays(7),   // Weekly
+            1 => date.AddDays(14),  // Bi-Weekly
+            2 => date.AddMonths(1), // Monthly
+            3 => date.AddMonths(3), // Quarterly
+            4 => date.AddYears(1),  // Yearly
+            _ => date
+        };
+    }
+
+    private static bool GridContainsSortableProperty(DataGridView grid, string propertyName)
+    {
+        foreach (DataGridViewColumn column in grid.Columns)
+        {
+            if (GetSortablePropertyName(column) == propertyName)
+                return true;
+        }
+
+        return false;
+    }
 
     #endregion
 
