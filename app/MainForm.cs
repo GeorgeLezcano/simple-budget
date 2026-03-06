@@ -586,8 +586,12 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void ReportClearClicked(object? sender, EventArgs e)
     {
-        // TODO: reset report filters to defaults
-        MessageBox.Show($"Not implemented", "Simple Budget");
+        dtpReportFrom.Value = DateTime.Now;
+        dtpReportTo.Value = DateTime.Now;
+        nudReportMin.Value = 0;
+        nudReportMax.Value = 0;
+        txtReportSearch.Text = string.Empty;
+        cbReportScope.SelectedIndex = 0;
     }
 
     /// <summary>

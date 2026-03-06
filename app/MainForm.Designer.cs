@@ -1105,7 +1105,7 @@ partial class MainForm
 
         cbReportScope.Dock = DockStyle.Fill;
         cbReportScope.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbReportScope.Items.AddRange(new object[] { "All", "Income Only", "Expenses Only" });
+        cbReportScope.Items.AddRange(AppConfig.ReportScope);
         cbReportScope.SelectedIndex = 0;
         StyleComboBox(cbReportScope);
 

@@ -46,7 +46,7 @@ public static class AppConfig
     ];
 
     /// <summary>
-    /// Dashboard views in spanish
+    /// Dashboard views in Spanish.
     /// </summary>
     public static readonly string[] DashboardViewSpanish =
     [
@@ -54,6 +54,16 @@ public static class AppConfig
         "Mes",
         "Año"
     ];
+
+    /// <summary>
+    /// Report filter English.
+    /// </summary>
+    public static readonly string[] ReportScope = ["All", "Income Only", "Expenses Only"];
+
+    /// <summary>
+    /// Report Filter Spanish.
+    /// </summary>
+    public static readonly string[] ReportScopeSpanish = ["Todos", "Solo Ingresos", "Solo Gastos"];
 
     #endregion
 
