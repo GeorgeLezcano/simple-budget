@@ -40,6 +40,11 @@ partial class MainForm
     private Label lblDashMonth;
     private DateTimePicker dtpDashMonth;
 
+    private Label lblDashRange;
+    private ComboBox cbDashRange;
+
+    private TableLayoutPanel tlpDashMiddle;
+
     private GroupBox gbDashTotals;
     private TableLayoutPanel tlpDashTotals;
     private Label lblIncomeTotalTitle;
@@ -51,8 +56,11 @@ partial class MainForm
     private Label lblSavingsTotalTitle;
     private Label lblSavingsTotalValue;
 
-    private Label lblDashRange;
-    private ComboBox cbDashRange;
+    private GroupBox gbSavingsSettings;
+    private TableLayoutPanel tlpSavingsSettings;
+    private Label lblSavingsPercent;
+    private NumericUpDown nudSavingsPercent;
+    private Label lblDashSavingsHelp;
 
     private GroupBox gbDashNextSteps;
     private Label lblDashHint;
@@ -178,15 +186,8 @@ partial class MainForm
     private Button btnAddExpenseType;
     private Button btnRemoveExpenseType;
 
-    private GroupBox gbSavingsSettings;
-    private TableLayoutPanel tlpSavingsSettings;
-    private Label lblSavingsPercent;
-    private NumericUpDown nudSavingsPercent;
-
     private Panel pnlSettingsActions;
     private FlowLayoutPanel flpSettingsActions;
-
-    private Button btnSavingsSave;
 
     #endregion
 
@@ -242,6 +243,11 @@ partial class MainForm
         lblDashMonth = new Label();
         dtpDashMonth = new DateTimePicker();
 
+        lblDashRange = new Label();
+        cbDashRange = new ComboBox();
+
+        tlpDashMiddle = new TableLayoutPanel();
+
         gbDashTotals = new GroupBox();
         tlpDashTotals = new TableLayoutPanel();
         lblIncomeTotalTitle = new Label();
@@ -253,8 +259,11 @@ partial class MainForm
         lblSavingsTotalTitle = new Label();
         lblSavingsTotalValue = new Label();
 
-        lblDashRange = new Label();
-        cbDashRange = new ComboBox();
+        gbSavingsSettings = new GroupBox();
+        tlpSavingsSettings = new TableLayoutPanel();
+        lblSavingsPercent = new Label();
+        nudSavingsPercent = new NumericUpDown();
+        lblDashSavingsHelp = new Label();
 
         gbDashNextSteps = new GroupBox();
         lblDashHint = new Label();
@@ -379,15 +388,8 @@ partial class MainForm
         btnAddExpenseType = new Button();
         btnRemoveExpenseType = new Button();
 
-        gbSavingsSettings = new GroupBox();
-        tlpSavingsSettings = new TableLayoutPanel();
-        lblSavingsPercent = new Label();
-        nudSavingsPercent = new NumericUpDown();
-
         pnlSettingsActions = new Panel();
         flpSettingsActions = new FlowLayoutPanel();
-
-        btnSavingsSave = new Button();
 
         #endregion
 
@@ -432,7 +434,6 @@ partial class MainForm
 
         menuLanguage.DropDownItems.Add(menuLanguageEnglish);
         menuLanguage.DropDownItems.Add(menuLanguageSpanish);
-
 
         menuHelp.Text = "&Help";
         menuHelpDocs.Text = "&Documentation";
@@ -481,7 +482,7 @@ partial class MainForm
 
         tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
         tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Absolute, 150));
+        tlpDashboard.RowStyles.Add(new RowStyle(SizeType.Absolute, 200));
 
         pnlDashHeader.Dock = DockStyle.Fill;
         pnlDashHeader.BackColor = AppConfig.ThemePanel;
@@ -532,6 +533,13 @@ partial class MainForm
         pnlDashHeader.Controls.Add(lblDashMonth);
         pnlDashHeader.Controls.Add(dtpDashMonth);
 
+        tlpDashMiddle.Dock = DockStyle.Fill;
+        tlpDashMiddle.ColumnCount = 2;
+        tlpDashMiddle.RowCount = 1;
+        tlpDashMiddle.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 62F));
+        tlpDashMiddle.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38F));
+        tlpDashMiddle.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
         gbDashTotals.Dock = DockStyle.Fill;
         gbDashTotals.Text = "Summary";
         StyleGroupBox(gbDashTotals);
@@ -550,27 +558,39 @@ partial class MainForm
 
         lblIncomeTotalTitle.AutoSize = true;
         lblIncomeTotalTitle.Text = "Total Income";
+        lblIncomeTotalTitle.ForeColor = AppConfig.ThemeMuted;
+
         lblIncomeTotalValue.AutoSize = true;
-        lblIncomeTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        lblIncomeTotalValue.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
         lblIncomeTotalValue.Text = "-";
+        lblIncomeTotalValue.TextAlign = ContentAlignment.MiddleRight;
 
         lblExpenseTotalTitle.AutoSize = true;
         lblExpenseTotalTitle.Text = "Total Expenses";
+        lblExpenseTotalTitle.ForeColor = AppConfig.ThemeMuted;
+
         lblExpenseTotalValue.AutoSize = true;
-        lblExpenseTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        lblExpenseTotalValue.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
         lblExpenseTotalValue.Text = "-";
+        lblExpenseTotalValue.TextAlign = ContentAlignment.MiddleRight;
 
         lblSavingsTotalTitle.AutoSize = true;
         lblSavingsTotalTitle.Text = "Savings";
+        lblSavingsTotalTitle.ForeColor = AppConfig.ThemeMuted;
+
         lblSavingsTotalValue.AutoSize = true;
-        lblSavingsTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        lblSavingsTotalValue.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
         lblSavingsTotalValue.Text = "-";
+        lblSavingsTotalValue.TextAlign = ContentAlignment.MiddleRight;
 
         lblNetTotalTitle.AutoSize = true;
         lblNetTotalTitle.Text = "Net";
+        lblNetTotalTitle.ForeColor = AppConfig.ThemeMuted;
+
         lblNetTotalValue.AutoSize = true;
-        lblNetTotalValue.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        lblNetTotalValue.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
         lblNetTotalValue.Text = "-";
+        lblNetTotalValue.TextAlign = ContentAlignment.MiddleRight;
 
         tlpDashTotals.Controls.Add(lblIncomeTotalTitle, 0, 0);
         tlpDashTotals.Controls.Add(lblIncomeTotalValue, 1, 0);
@@ -582,6 +602,47 @@ partial class MainForm
         tlpDashTotals.Controls.Add(lblNetTotalValue, 1, 3);
 
         gbDashTotals.Controls.Add(tlpDashTotals);
+
+        gbSavingsSettings.Dock = DockStyle.Fill;
+        gbSavingsSettings.Text = "Savings";
+        StyleGroupBox(gbSavingsSettings);
+
+        tlpSavingsSettings.Dock = DockStyle.Fill;
+        tlpSavingsSettings.Padding = new Padding(12);
+        tlpSavingsSettings.ColumnCount = 2;
+        tlpSavingsSettings.RowCount = 2;
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        lblSavingsPercent.Text = "Savings %:";
+        lblSavingsPercent.TextAlign = ContentAlignment.MiddleLeft;
+        lblSavingsPercent.Dock = DockStyle.Fill;
+
+        nudSavingsPercent.DecimalPlaces = 1;
+        nudSavingsPercent.Minimum = 0;
+        nudSavingsPercent.Maximum = 100;
+        nudSavingsPercent.Width = 120;
+        nudSavingsPercent.Height = 32;
+        nudSavingsPercent.Dock = DockStyle.Left;
+        nudSavingsPercent.Margin = new Padding(0);
+        StyleNumeric(nudSavingsPercent);
+
+        lblDashSavingsHelp.Dock = DockStyle.Fill;
+        lblDashSavingsHelp.ForeColor = AppConfig.ThemeMuted;
+        lblDashSavingsHelp.Text = string.Empty;
+        lblDashSavingsHelp.Padding = new Padding(0, 8, 0, 0);
+
+        tlpSavingsSettings.Controls.Add(lblSavingsPercent, 0, 0);
+        tlpSavingsSettings.Controls.Add(nudSavingsPercent, 1, 0);
+        tlpSavingsSettings.Controls.Add(lblDashSavingsHelp, 0, 1);
+        tlpSavingsSettings.SetColumnSpan(lblDashSavingsHelp, 2);
+
+        gbSavingsSettings.Controls.Add(tlpSavingsSettings);
+
+        tlpDashMiddle.Controls.Add(gbDashTotals, 0, 0);
+        tlpDashMiddle.Controls.Add(gbSavingsSettings, 1, 0);
 
         gbDashNextSteps.Dock = DockStyle.Fill;
         gbDashNextSteps.Text = "Next steps";
@@ -597,7 +658,7 @@ partial class MainForm
         gbDashNextSteps.Controls.Add(lblDashHint);
 
         tlpDashboard.Controls.Add(pnlDashHeader, 0, 0);
-        tlpDashboard.Controls.Add(gbDashTotals, 0, 1);
+        tlpDashboard.Controls.Add(tlpDashMiddle, 0, 1);
         tlpDashboard.Controls.Add(gbDashNextSteps, 0, 2);
 
         tabDashboard.Controls.Add(tlpDashboard);
@@ -747,7 +808,6 @@ partial class MainForm
 
         tlpIncomeEntry.Controls.Add(flpIncomeButtons, 0, 5);
         tlpIncomeEntry.SetColumnSpan(flpIncomeButtons, 2);
-
 
         gbIncomeEntry.Controls.Add(tlpIncomeEntry);
 
@@ -1213,11 +1273,10 @@ partial class MainForm
 
         tlpSettingsRoot.Dock = DockStyle.Fill;
         tlpSettingsRoot.ColumnCount = 2;
-        tlpSettingsRoot.RowCount = 3;
+        tlpSettingsRoot.RowCount = 2;
         tlpSettingsRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         tlpSettingsRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         tlpSettingsRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        tlpSettingsRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
         tlpSettingsRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
         tlpSettingsRoot.Padding = new Padding(0, 10, 0, 0);
 
@@ -1348,54 +1407,6 @@ partial class MainForm
 
         gbExpenseTypes.Controls.Add(tlpExpenseTypes);
 
-        gbSavingsSettings.Dock = DockStyle.Fill;
-        gbSavingsSettings.Text = "Savings";
-        StyleGroupBox(gbSavingsSettings);
-
-        tlpSavingsSettings.Dock = DockStyle.Fill;
-        tlpSavingsSettings.Padding = new Padding(12);
-        tlpSavingsSettings.ColumnCount = 3;
-        tlpSavingsSettings.RowCount = 1;
-
-        tlpSavingsSettings.ColumnStyles.Clear();
-        tlpSavingsSettings.RowStyles.Clear();
-
-        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120)); // label
-        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120)); // numeric
-        tlpSavingsSettings.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));      // button
-
-        tlpSavingsSettings.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
-
-        lblSavingsPercent.Text = "Savings %:";
-        lblSavingsPercent.TextAlign = ContentAlignment.MiddleLeft;
-        lblSavingsPercent.Dock = DockStyle.Fill;
-
-        // Numeric
-        nudSavingsPercent.DecimalPlaces = 1;
-        nudSavingsPercent.Minimum = 0;
-        nudSavingsPercent.Maximum = 100;
-        nudSavingsPercent.Width = 120;
-        nudSavingsPercent.Height = 32;
-        nudSavingsPercent.Dock = DockStyle.None;
-        nudSavingsPercent.Anchor = AnchorStyles.Left;
-        nudSavingsPercent.Margin = new Padding(0);
-        StyleNumeric(nudSavingsPercent);
-
-        // Button
-        btnSavingsSave.Text = "Save";
-        btnSavingsSave.Width = 120;
-        btnSavingsSave.Dock = DockStyle.None;
-        btnSavingsSave.Anchor = AnchorStyles.Left;
-        btnSavingsSave.Margin = new Padding(8, 0, 0, 0);
-        btnSavingsSave.Click += SavingsSaveClicked;
-        StyleButton(btnSavingsSave);
-
-        tlpSavingsSettings.Controls.Add(lblSavingsPercent, 0, 0);
-        tlpSavingsSettings.Controls.Add(nudSavingsPercent, 1, 0);
-        tlpSavingsSettings.Controls.Add(btnSavingsSave, 2, 0);
-
-        gbSavingsSettings.Controls.Add(tlpSavingsSettings);
-
         // Actions row
         pnlSettingsActions.Dock = DockStyle.Fill;
         pnlSettingsActions.BackColor = AppConfig.ThemePanel;
@@ -1411,10 +1422,7 @@ partial class MainForm
         tlpSettingsRoot.Controls.Add(gbIncomeTypes, 0, 0);
         tlpSettingsRoot.Controls.Add(gbExpenseTypes, 1, 0);
 
-        tlpSettingsRoot.Controls.Add(gbSavingsSettings, 0, 1);
-        tlpSettingsRoot.SetColumnSpan(gbSavingsSettings, 2);
-
-        tlpSettingsRoot.Controls.Add(pnlSettingsActions, 0, 2);
+        tlpSettingsRoot.Controls.Add(pnlSettingsActions, 0, 1);
         tlpSettingsRoot.SetColumnSpan(pnlSettingsActions, 2);
 
         tabSettings.Controls.Add(tlpSettingsRoot);

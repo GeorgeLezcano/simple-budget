@@ -48,6 +48,7 @@ public partial class MainForm : Form
         tabMain.SelectedIndexChanged += TabMain_SelectedIndexChanged;
         cbDashRange.SelectedIndexChanged += SummaryMonthChanged;
         nudSavingsPercent.ValueChanged += SavingsPercentChanged;
+        nudSavingsPercent.Leave += SavingsPercentChanged;
 
         _ledgerService = ledgerService;
         _settingsService = settingsService;
@@ -66,7 +67,7 @@ public partial class MainForm : Form
     private void HelpDocsClicked(object? sender, EventArgs e)
     {
         // TODO: open local docs or project website (later)
-        MessageBox.Show($"Not implemented", "Simple Budget");
+        MessageBox.Show($"Documentation Not Implemented Yet", "Simple Budget");
     }
 
     /// <summary>
@@ -156,6 +157,17 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private void SummaryMonthChanged(object? sender, EventArgs e) =>
         RefreshDashboardTab();
+
+    /// <summary>
+    /// Attempts to autosave on text field change.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void SavingsPercentChanged(object? sender, EventArgs e)
+    {
+        SaveSavingsPercent(showErrorMessage: false);
+        RefreshDashboardTab();
+    }
 
     #endregion
 
@@ -576,7 +588,7 @@ public partial class MainForm : Form
     private void ReportRunClicked(object? sender, EventArgs e)
     {
         // TODO: build query based on filters and load results grid
-        MessageBox.Show($"Not implemented", "Simple Budget");
+        MessageBox.Show($"Run Report Not Implemented Yet", "Simple Budget");
     }
 
     /// <summary>
@@ -602,7 +614,7 @@ public partial class MainForm : Form
     private void ExportPdfClicked(object? sender, EventArgs e)
     {
         // TODO: export current report results to PDF
-        MessageBox.Show($"Not implemented", "Simple Budget");
+        MessageBox.Show($"Export to PDF Not Implemented Yet", "Simple Budget");
     }
 
     /// <summary>
@@ -613,7 +625,7 @@ public partial class MainForm : Form
     private void ExportExcelClicked(object? sender, EventArgs e)
     {
         // TODO: export current report results to Excel
-        MessageBox.Show($"Not implemented", "Simple Budget");
+        MessageBox.Show($"Export to Excel Not Implemented Yet", "Simple Budget");
     }
 
     #endregion
@@ -720,28 +732,6 @@ public partial class MainForm : Form
         RefreshExpensesTab();
     }
 
-    /// <summary>
-    /// Handler for Savings % button click.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SavingsSaveClicked(object? sender, EventArgs e)
-    {
-        SaveSavingsPercent(showErrorMessage: true);
-        RefreshDashboardTab();
-    }
-
-    /// <summary>
-    /// Attempts to autosave on text field change.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SavingsPercentChanged(object? sender, EventArgs e)
-    {
-        SaveSavingsPercent(showErrorMessage: false);
-        RefreshDashboardTab();
-    }
-
     #endregion
 
     #region Form Events
@@ -778,7 +768,6 @@ public partial class MainForm : Form
 
         LoadSavedSavingsPercent();
         ApplyLanguageAndRefresh();
-        RefreshDashboardTab();
     }
 
     #endregion
@@ -1002,6 +991,7 @@ public partial class MainForm : Form
             lblExpenseTotalValue.Text = FormatCurrency(0);
             lblSavingsTotalValue.Text = FormatCurrency(0);
             lblNetTotalValue.Text = FormatCurrency(0);
+            ApplyDashboardValueColors(0, 0, 0, 0);
             return;
         }
 
@@ -1025,6 +1015,7 @@ public partial class MainForm : Form
         lblExpenseTotalValue.Text = FormatCurrency(expenseTotal);
         lblSavingsTotalValue.Text = FormatCurrency(savingsAmount);
         lblNetTotalValue.Text = FormatCurrency(netAmount);
+        ApplyDashboardValueColors(incomeTotal, expenseTotal, savingsAmount, netAmount);
     }
 
     private static void RefreshReportsTab() { /* TODO */ }
@@ -1057,7 +1048,9 @@ public partial class MainForm : Form
         LabelFormatter.Apply(this, menuMain);
 
         RefreshCurrentTab();
-        RefreshDashboardTab();
+
+        if (tabMain.SelectedTab != tabDashboard)
+            RefreshDashboardTab();
 
         LedgerGridHeaderFormatter.RefreshAll();
         tabMain.Invalidate();
@@ -1457,6 +1450,34 @@ public partial class MainForm : Form
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Applies dashboard colors based on amount.
+    /// </summary>
+    /// <param name="incomeTotal"></param>
+    /// <param name="expenseTotal"></param>
+    /// <param name="savingsAmount"></param>
+    /// <param name="netAmount"></param>
+    private void ApplyDashboardValueColors(
+        decimal incomeTotal,
+        decimal expenseTotal,
+        decimal savingsAmount,
+        decimal netAmount)
+    {
+        lblIncomeTotalValue.ForeColor = AppConfig.ThemeText;
+        lblExpenseTotalValue.ForeColor = AppConfig.ThemeText;
+
+        lblSavingsTotalValue.ForeColor = savingsAmount > 0
+            ? AppConfig.ThemePositive
+            : AppConfig.ThemeText;
+
+        if (netAmount > 0)
+            lblNetTotalValue.ForeColor = AppConfig.ThemePositive;
+        else if (netAmount < 0)
+            lblNetTotalValue.ForeColor = AppConfig.ThemeNegative;
+        else
+            lblNetTotalValue.ForeColor = AppConfig.ThemeText;
     }
 
     #endregion

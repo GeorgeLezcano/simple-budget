@@ -86,11 +86,17 @@ public static class LabelFormatter
                 ["lblExpenseTotalTitle"] = "Total Expenses",
                 ["lblSavingsTotalTitle"] = "Savings",
                 ["lblNetTotalTitle"] = "Net",
+                ["gbSavingsSettings"] = "Savings",
+                ["lblSavingsPercent"] = "Savings %:",
+                ["lblDashSavingsHelp"] =
+                    "Adjust the savings percentage here.\n\n" +
+                    "Savings and Net update automatically.",
                 ["gbDashNextSteps"] = "Next steps",
                 ["lblDashHint"] =
-                    "• Use Income to add money coming in.\n" +
+                    "• Use Income to add money coming in (recurring or one-time).\n" +
                     "• Use Expenses to log spending (recurring or one-time).\n" +
-                    "• Use Reports to filter/export.\n" +
+                    "• Change Savings % on the Dashboard to control how leftover money is split.\n" +
+                    "• Use Reports to filter and export data.\n" +
                     "• Use Settings to manage categories (Rent, Groceries, etc.).",
 
                 // App shell / menu / tabs
@@ -134,18 +140,30 @@ public static class LabelFormatter
                 ["btnExpenseDeleteSelected"] = "Delete Selected",
                 ["btnExpenseDeleteAll"] = "Delete All",
 
+                // Reports
+                ["gbReportFilters"] = "Filters",
+                ["lblReportHint"] = "Filters combine together. Leave blank to ignore.",
+                ["lblReportFrom"] = "From:",
+                ["lblReportTo"] = "To:",
+                ["lblReportMin"] = "Amount Min:",
+                ["lblReportMax"] = "Amount Max:",
+                ["lblReportSearch"] = "Search:",
+                ["lblReportScope"] = "Scope:",
+                ["btnReportRun"] = "Run",
+                ["btnReportClear"] = "Clear",
+                ["btnExportPdf"] = "Export PDF",
+                ["btnExportExcel"] = "Export Excel",
+                ["gbReportResults"] = "Results",
+
                 // Settings tab
                 ["lblSettingsTitle"] = "Settings",
-                ["lblSettingsHint"] = "Add categories here. They will show up in Income/Expenses dropdowns.",
+                ["lblSettingsHint"] = "Add categories here. They will show up in the Income and Expenses dropdowns.",
                 ["gbIncomeTypes"] = "Income Categories",
                 ["gbExpenseTypes"] = "Expense Categories",
-                ["btnAddIncomeType"] = "Add Category",
-                ["btnRemoveIncomeType"] = "Remove Selected",
-                ["btnAddExpenseType"] = "Add Category",
-                ["btnRemoveExpenseType"] = "Remove Selected",
-                ["gbSavingsSettings"] = "Savings",
-                ["lblSavingsPercent"] = "Savings %:",
-                ["btnSavingsSave"] = "Save",
+                ["btnAddIncomeType"] = "Add Income Category",
+                ["btnRemoveIncomeType"] = "Remove Category",
+                ["btnAddExpenseType"] = "Add Expense Category",
+                ["btnRemoveExpenseType"] = "Remove Category",
                 ["txtNewIncomeType.PlaceholderText"] = "New income category...",
                 ["txtNewExpenseType.PlaceholderText"] = "New expense category..."
             },
@@ -161,11 +179,17 @@ public static class LabelFormatter
                 ["lblExpenseTotalTitle"] = "Gastos totales",
                 ["lblSavingsTotalTitle"] = "Ahorros",
                 ["lblNetTotalTitle"] = "Neto",
+                ["gbSavingsSettings"] = "Ahorros",
+                ["lblSavingsPercent"] = "Ahorros %:",
+                ["lblDashSavingsHelp"] =
+                    "Ajusta aquí el porcentaje de ahorros.\n\n" +
+                    "Ahorros y Neto se actualizan automáticamente.",
                 ["gbDashNextSteps"] = "Próximos pasos",
                 ["lblDashHint"] =
-                    "• Usa Ingresos para agregar dinero que entra.\n" +
+                    "• Usa Ingresos para agregar dinero que entra (recurrente o único).\n" +
                     "• Usa Gastos para registrar gastos (recurrentes o únicos).\n" +
-                    "• Usa Informes para filtrar/exportar.\n" +
+                    "• Cambia el % de Ahorros en el Panel para controlar cómo se divide el dinero restante.\n" +
+                    "• Usa Informes para filtrar y exportar datos.\n" +
                     "• Usa Configuración para administrar categorías (Alquiler, Comestibles, etc.).",
 
                 // App shell / menu / tabs
@@ -186,7 +210,7 @@ public static class LabelFormatter
                 ["lblIncomeCategory"] = "Categoría:",
                 ["lblIncomeAmount"] = "Cantidad:",
                 ["lblIncomeDate"] = "Fecha:",
-                ["chkIncomeRecurring"] = "Repetitivo",
+                ["chkIncomeRecurring"] = "Recurrente",
                 ["lblIncomeFrequency"] = "Frecuencia:",
                 ["lblIncomeNotes"] = "Notas:",
                 ["btnIncomeAdd"] = "Agregar ingreso",
@@ -200,7 +224,7 @@ public static class LabelFormatter
                 ["lblExpenseCategory"] = "Categoría:",
                 ["lblExpenseAmount"] = "Cantidad:",
                 ["lblExpenseDate"] = "Fecha:",
-                ["chkExpenseRecurring"] = "Repetitivo",
+                ["chkExpenseRecurring"] = "Recurrente",
                 ["lblExpenseFrequency"] = "Frecuencia:",
                 ["lblExpenseNotes"] = "Notas:",
                 ["btnExpenseAdd"] = "Agregar gasto",
@@ -209,18 +233,30 @@ public static class LabelFormatter
                 ["btnExpenseDeleteSelected"] = "Eliminar seleccionado",
                 ["btnExpenseDeleteAll"] = "Eliminar todo",
 
+                // Reports
+                ["gbReportFilters"] = "Filtros",
+                ["lblReportHint"] = "Los filtros se combinan. Déjalo en blanco para ignorarlo.",
+                ["lblReportFrom"] = "Desde:",
+                ["lblReportTo"] = "Hasta:",
+                ["lblReportMin"] = "Cantidad mínima:",
+                ["lblReportMax"] = "Cantidad máxima:",
+                ["lblReportSearch"] = "Buscar:",
+                ["lblReportScope"] = "Alcance:",
+                ["btnReportRun"] = "Ejecutar",
+                ["btnReportClear"] = "Limpiar",
+                ["btnExportPdf"] = "Exportar PDF",
+                ["btnExportExcel"] = "Exportar Excel",
+                ["gbReportResults"] = "Resultados",
+
                 // Settings tab
                 ["lblSettingsTitle"] = "Configuración",
-                ["lblSettingsHint"] = "Agrega categorías aquí. Aparecerán en los menús de Ingresos/Gastos.",
+                ["lblSettingsHint"] = "Agrega categorías aquí. Aparecerán en las listas de Ingresos y Gastos.",
                 ["gbIncomeTypes"] = "Categorías de ingresos",
                 ["gbExpenseTypes"] = "Categorías de gastos",
-                ["btnAddIncomeType"] = "Agregar categoría",
-                ["btnRemoveIncomeType"] = "Eliminar seleccionado",
-                ["btnAddExpenseType"] = "Agregar categoría",
-                ["btnRemoveExpenseType"] = "Eliminar seleccionado",
-                ["gbSavingsSettings"] = "Ahorros",
-                ["lblSavingsPercent"] = "Ahorros %:",
-                ["btnSavingsSave"] = "Guardar",
+                ["btnAddIncomeType"] = "Agregar categoría de ingresos",
+                ["btnRemoveIncomeType"] = "Eliminar categoría",
+                ["btnAddExpenseType"] = "Agregar categoría de gastos",
+                ["btnRemoveExpenseType"] = "Eliminar categoría",
                 ["txtNewIncomeType.PlaceholderText"] = "Nueva categoría de ingresos...",
                 ["txtNewExpenseType.PlaceholderText"] = "Nueva categoría de gastos..."
             }

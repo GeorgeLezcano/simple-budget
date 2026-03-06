@@ -75,6 +75,9 @@ public static class AppConfig
     public static readonly Color ThemeText = Color.Gainsboro;
     public static readonly Color ThemeMuted = Color.FromArgb(170, 170, 170);
     public static readonly Color ThemeBorder = Color.FromArgb(80, 80, 80);
+    public static readonly Color ThemePositive = Color.FromArgb(76, 175, 80);
+    public static readonly Color ThemeNegative = Color.FromArgb(244, 67, 54);
+    public static readonly Color ThemeInfo = Color.FromArgb(100, 181, 246);
 
     // Accents
     public static readonly Color ThemeAccent = Color.FromArgb(33, 140, 79);      // green buttons
