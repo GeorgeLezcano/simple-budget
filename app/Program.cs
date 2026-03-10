@@ -22,7 +22,7 @@ static class Program
             MessageBox.Show("Simple Budget is already running.", "SimpleBudget", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
-        Application.SetHighDpiMode(HighDpiMode.SystemAware);
+        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 
         ApplicationConfiguration.Initialize();
 
