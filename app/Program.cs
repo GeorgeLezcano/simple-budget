@@ -23,8 +23,7 @@ static class Program
             return;
         }
         
-        //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-        Application.SetHighDpiMode(HighDpiMode.SystemAware);
+        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 
         ApplicationConfiguration.Initialize();
 

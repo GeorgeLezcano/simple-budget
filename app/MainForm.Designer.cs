@@ -402,7 +402,6 @@ partial class MainForm
         #region MainForm
 
         AutoScaleMode = AutoScaleMode.Font;
-        //AutoScaleMode = AutoScaleMode.Dpi;
         ClientSize = new Size(1200, 800);
         MinimumSize = new Size(1100, 720);
         StartPosition = FormStartPosition.CenterScreen;
